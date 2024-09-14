@@ -1,5 +1,6 @@
 import pyautogui
-from mode import Mode
+from backend.mode import Mode
+from utils.gesture import Gesture
 
 class GestureToAction:
     def __init__(self):
@@ -8,6 +9,8 @@ class GestureToAction:
             'pinch': self.mouse_click,
             'rotate': self.swap_mode
         }
+
+    def process_gesture(self, gesture: Gesture):
   
     def map_gesture(self, gesture_name):
         if gesture_name in self.gestures_map:
