@@ -27,11 +27,8 @@ class keyboardControl:
         self.cache.extend(list(s))
 
     # Walks backwards through the cache and removes all characters before the first whitespace
-    def cleanCache(self):
-        for i in range(len(self.cache) - 1, -1, -1):
-            if self.cache[i] == 'space':
-                self.cache = self.cache[i + 1:len(self.cache)]
-                break
+    def clearCache(self):
+        self.cache = list()
 
     def clickAt(self, x: float, y: float):
         size = pyautogui.size()
@@ -41,18 +38,16 @@ class keyboardControl:
 
     def autocomplete(self):
         message = "".join(self.cache)
-        print(f"Message: {message}")
         self.messages.append({"role": "user", "content": message})
         chat = openai.ChatCompletion.create(
             model="gpt-3.5-turbo", messages=self.messages
         )
         reply = chat.choices[0].message.content
-        print(f"GPT: {reply}")
         self.messages.append({"role": "assistant", "content": reply})
         candidates = [x.strip() for x in reply.split(",")]
-        print(candidates)
+        return candidates
 
 
-controller = keyboardControl()
-controller.keyboardInputString("I absolutely love talking about Python")
-controller.autocomplete()
+# controller = keyboardControl()
+# controller.keyboardInputString("I absolutely love talking about Python")
+# controller.autocomplete()
