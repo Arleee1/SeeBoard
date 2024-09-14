@@ -16,7 +16,7 @@ class GestureProcessor:
         self.modeCooldown = 0
 
     def process_gesture(self, hand):
-        self.handle_movement((hand['x'], hand['y']))
+        self.handle_movement((hand['dampened_x'], hand['dampened_y']))
 
         if self.modeCooldown > 0:
             self.modeCooldown -= 1
