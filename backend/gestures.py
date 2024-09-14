@@ -1,7 +1,9 @@
 import pyautogui
+from mode import Mode
 
 class GestureToAction:
     def __init__(self):
+        self.mode = Mode()
         self.gestures_map = {
             'pinch': self.mouse_click,
             'rotate': self.swap_mode
@@ -29,4 +31,9 @@ class GestureToAction:
         pyautogui.click()
 
     def swap_mode(self):
-        pass
+        if self.mode.get_mode() == "navigation":
+            self.mode.change_mode("keyboard")
+        elif self.mode.get_mode() == "keyboard":
+            self.mode.change_mode("drawing")
+        else:
+            self.mode.change_mode("navigation")
