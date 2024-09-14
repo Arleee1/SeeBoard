@@ -1,22 +1,21 @@
 import sys
 import os
 from queue import Queue
+
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QPushButton, QGraphicsDropShadowEffect
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QColor
+from PyQt5.QtCore import QTimer
 import threading
-import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from cv.hands_reader import read_hands  # Ensure this path is valid
+from cv.hands_reader import read_hands
 import constants
+
 from backend.gestureProcessor import GestureProcessor
 
 hands_queue = Queue()
 scale_factor = 1.4
-stop_thread = threading.Event()  # Use an event object for thread stopping
-
-
 class TransparentKeyboard(QWidget):
     def __init__(self):
         super().__init__()
@@ -47,11 +46,9 @@ class TransparentKeyboard(QWidget):
         # Set the layout to the window
         self.setLayout(self.layout)
 
-        # Timer for checking gestures
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.on_timeout)
-        self.timer.start(int(1000 * (1. / constants.FRAME_RATE)) - 5)  # Call every 100 milliseconds
-
+        self.timer.start(int(1000*(1./constants.FRAME_RATE)) - 5)  # Call every 100 milliseconds
         self.processor = GestureProcessor(pyqt_gui=self)
 
     def on_timeout(self):
@@ -61,6 +58,8 @@ class TransparentKeyboard(QWidget):
                 self.processor.process_gesture(right_hand)
             elif left_hand['exists']:
                 self.processor.process_gesture(left_hand)
+            # else:
+                # print("No hands detected")
 
     def button_style(self):
         """Returns the stylesheet for the buttons."""
@@ -139,11 +138,11 @@ class TransparentKeyboard(QWidget):
             else:
                 self.layout.addWidget(button, 2, col + 1, 1, 1)
         enter_button = self.create_key_button('Enter')
-        self.layout.addWidget(enter_button, 2, len(row_3), 1, 2)
+        self.layout.addWidget(enter_button, 2, len(row_3), 1, 2) 
 
-        # Fourth row (Shift, ZXCV, etc.)
         row_4 = ['Shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', 'Up', 'Shift']
         first_shift_flag = True
+        # take into account column offset for the shift key
         for col, key in enumerate(row_4):
             button = self.create_key_button(key)
             if key == 'Shift':
@@ -155,9 +154,10 @@ class TransparentKeyboard(QWidget):
             else:
                 self.layout.addWidget(button, 3, col + 1, 1, 1)
 
-        # Fifth row (Ctrl, Alt, Space, etc.)
-        row_5 = ['Exit', 'Ctrl', 'Win', 'Alt', 'Space', 'Alt', 'Ctrl', 'Left', 'Down', 'Right', 'Opt']
+        row_5 = ['Exit', 'Ctrl', 'Win', 'Alt', 'Space', 'Alt', 'Ctrl', 'Left', 'Down', 'Right', 'Flip']
+        # space key should take up the remaining space
         space_flag = False
+        # if space_flag is true then add additional offset to remaining keys
         for col, key in enumerate(row_5):
             button = self.create_key_button(key)
             if key == 'Space':
@@ -172,36 +172,16 @@ class TransparentKeyboard(QWidget):
     def handle_key_click(self):
         button = self.sender()  # Get the clicked button
         key_value = button.text()  # Get the key's text
-
-        if key_value == 'Exit':
-            self.close_application()  # Close the application
-
-        print(f"Key pressed: {key_value}")  # Print the key for debugging
-
-    def close_application(self):
-        """Gracefully close the application by stopping the thread and quitting."""
-        stop_thread.set()  # Signal the thread to stop
-        self.close()  # Close the window
-
-
-def hands_reader_function():
-    """Wrapper function to continuously run read_hands unless stop_thread is True."""
-    global stop_thread
-    while not stop_thread.is_set():  # Check if the thread should stop
-        read_hands(hands_queue)
-        time.sleep(0.1)  # Add a small sleep to avoid locking
+        print(f"Key pressed: {key_value}")  # Print the key (You can customize this)
 
 
 # Main application code
 app = QApplication(sys.argv)
+# Create the main window (keyboard)
 keyboard = TransparentKeyboard()
 keyboard.setWindowTitle("Realistic Keyboard")
-keyboard.resize(int(1600 * scale_factor), int(600 * scale_factor))
-
-# Start the hands reader thread
-hands_reader_thread = threading.Thread(target=hands_reader_function)
-hands_reader_thread.start()
-
+keyboard.resize(int(1600 * scale_factor), int(600 * scale_factor))  # Larger window size to accommodate keys and spacing
+threading.Thread(target=read_hands, args=(hands_queue,)).start()
 keyboard.show()
 
 # Execute the application
