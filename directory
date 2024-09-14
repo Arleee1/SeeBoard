@@ -1,7 +1,7 @@
 hand_gesture_controlled_gui/
 │
 ├── opencv/
-│   ├── __init__.py               # Initialize the OpenCV module
+│   ├── __init__.py                # Initialize the OpenCV module
 │   ├── gesture_recognition.py     # OpenCV code for recognizing gestures
 │   └── camera_stream.py           # Code for handling the camera input
 │
