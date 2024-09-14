@@ -15,7 +15,7 @@ import constants
 from backend.gestureProcessor import GestureProcessor
 
 hands_queue = Queue()
-scale_factor = 1
+scale_factor = 1.4
 class TransparentKeyboard(QWidget):
     def __init__(self):
         super().__init__()
