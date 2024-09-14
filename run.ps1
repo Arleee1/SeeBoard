@@ -1,1 +1,1 @@
-python -m ui.keyboard.py
+python -m ui.keyboardGUI.py
