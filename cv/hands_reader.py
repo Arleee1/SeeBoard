@@ -4,8 +4,7 @@ import cv2
 import mediapipe as mp
 from google.protobuf.json_format import MessageToDict
 from queue import Queue
-
-draw = True
+import constants
 
 
 class HandDetector:
@@ -40,7 +39,7 @@ class HandDetector:
         }
         if self.results.multi_hand_landmarks:
             for i, handlms in enumerate(self.results.multi_hand_landmarks):
-                if draw:
+                if constants.draw_hands:
                     self.mpDraw.draw_landmarks(img, handlms, self.mpHands.HAND_CONNECTIONS)
 
 
@@ -48,7 +47,7 @@ class HandDetector:
                 curr_side = curr_dict['classification'][0]["label"]
                 hand_dict = MessageToDict(handlms)
                 landmark_list = hand_dict["landmark"]
-                if draw:
+                if constants.draw_hands:
                     img_width = len(img[0])
                     img_height = len(img)
                     finger_tip_indices = [4, 8, 12, 16, 20]
@@ -104,10 +103,11 @@ class HandDetector:
                         "angle": angle
                     }
 
-        print("left")
-        print(left_hand)
-        print("right")
-        print(right_hand)
+        if constants.draw_hands:
+            print("left")
+            print(left_hand)
+            print("right")
+            print(right_hand)
 
         return img, left_hand, right_hand
 
@@ -118,6 +118,7 @@ def read_hands(hands_queue: Queue):
     cap = cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    cap.set(cv2.CAP_PROP_FPS, constants.FRAME_RATE)
 
     while True:
         success, img = cap.read()
@@ -126,7 +127,7 @@ def read_hands(hands_queue: Queue):
 
         hands_queue.put((left_hand, right_hand))
 
-        if draw:
+        if constants.draw_hands:
             cv2.imshow('Image', img_res)
         if cv2.waitKey(1) & 0xff == ord('q'):
             break
