@@ -5,14 +5,17 @@ class keyboardControl:
         self.cache = list()
 
     def keyboardInput(self, s: str, interval: float = 0):
-        pyautogui.typewrite(s, interval=interval)
-        self.cache.extend(list(s))
+        pyautogui.typewrite([s], interval=interval)
+        if s == 'backspace':
+            self.cache.pop()
+        else:
+            self.cache.extend(list(s))
         self.cleanCache()
 
     # Walks backwards through the cache and removes all characters before the first whitespace
     def cleanCache(self):
         for i in range(len(self.cache)-1, -1, -1):
-            if self.cache[i] == " ":
+            if self.cache[i] == 'space':
                 self.cache = self.cache[i+1:len(self.cache)]
                 break
 
@@ -26,5 +29,8 @@ class keyboardControl:
 #controller = keyboardControl()
 #controller.keyboardInput("testing the input")
 #print(controller.cache)
+#for key in pyautogui.KEYBOARD_KEYS:
+#    print(key)
+
 
 
