@@ -11,21 +11,29 @@ class GestureProcessor:
         self.pyqt_gui = pyqt_gui
         self.screen_width, self.screen_height = pyautogui.size()
         self.window_x, self.window_y = 0, 0
-        self.hasClicked = False
+        self.hasClosedFor = 0
         self.hasChangedMode = False
+        self.modeCooldown = 0
 
     def process_gesture(self, hand):
         self.handle_movement((hand['x'], hand['y']))
 
-        if not hand['is_open'] and not self.hasClicked:
+        if self.modeCooldown > 0:
+            self.modeCooldown -= 1
+
+        if not hand['is_open'] and self.hasClosedFor == 5:
+            self.hasClosedFor += 1
             self.mouse_click()
-            self.hasClicked = True
         else:
             if hand['is_open']:
-                self.hasClicked = False
+                print("reset")
+                self.hasClosedFor = 0
+            else:
+                self.hasClosedFor += 1
         
         if hand['angle'] > 120 and not self.hasChangedMode:
             self.swap_mode()
+            self.modeCooldown = 20
             self.hasChangedMode = True
         else:
             if hand['angle'] < 120:
