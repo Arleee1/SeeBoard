@@ -22,7 +22,7 @@ class TransparentKeyboard(QWidget):
         self.layout.setVerticalSpacing(0)    # Reduced vertical spacing
 
         # Optionally, you can reduce the margins around the grid
-        self.layout.setContentsMargins(5, 5, 5, 5)  # Reduce margins around the 
+        self.layout.setContentsMargins(5, 5, 5, 5)  # Reduce margins around the grid
         self.layout.setSpacing(5)
 
         # Generate the full keyboard layout
@@ -60,14 +60,19 @@ class TransparentKeyboard(QWidget):
         return shadow
 
     def create_key_button(self, key):
-        """Creates a QPushButton for a key with uniform size."""
+        """Creates a QPushButton for a key with variable size based on the key type."""
         button = QPushButton(key)
         button.setStyleSheet(self.button_style())
         button.setGraphicsEffect(self.create_shadow())
         button.setFont(QFont("Arial", 16, QFont.Bold))
 
-        # Set uniform size for most buttons
-        button.setFixedSize(120, 100)  # Set same size for all buttons except larger keys
+        # Set different sizes based on the key type
+        if key == 'Space':
+            button.setFixedSize(600, 100)  # Large space key
+        elif key == 'Tab' or key == 'Caps Lock' or key == 'Shift' or key == 'Backspace' or key == 'Enter':
+            button.setFixedSize(240, 100)  # Larger modifier keys
+        else:
+            button.setFixedSize(120, 100)  # Regular size for other keys
 
         button.clicked.connect(self.handle_key_click)
         return button
@@ -121,7 +126,7 @@ class TransparentKeyboard(QWidget):
         for col, key in enumerate(row_5):
             button = self.create_key_button(key)
             if key == 'Space':
-                self.layout.addWidget(button, 4, col, 1, 7)  # Space spans 7 columns
+                self.layout.addWidget(button, 4, 1, 1, 7)  # Space spans 7 columns
             else:
                 self.layout.addWidget(button, 4, col, 1, 1)
 
@@ -137,7 +142,7 @@ app = QApplication(sys.argv)
 # Create the main window (keyboard)
 keyboard = TransparentKeyboard()
 keyboard.setWindowTitle("Realistic Keyboard")
-keyboard.resize(1500, 600)  # Larger window size to accommodate keys and spacing
+keyboard.resize(1600, 600)  # Larger window size to accommodate keys and spacing
 keyboard.show()
 
 # Execute the application
