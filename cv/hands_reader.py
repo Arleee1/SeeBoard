@@ -3,6 +3,7 @@ import math
 import cv2
 import mediapipe as mp
 from google.protobuf.json_format import MessageToDict
+from queue import Queue
 
 draw = True
 
@@ -108,22 +109,24 @@ class HandDetector:
         print("right")
         print(right_hand)
 
-        return img
+        return img, left_hand, right_hand
 
 
-detector = HandDetector()
+def read_hands(hands_queue: Queue):
+    detector = HandDetector()
 
-cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    cap = cv2.VideoCapture(0)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
+    while True:
+        success, img = cap.read()
+        img = cv2.flip(img, 1)
+        img_res, left_hand, right_hand = detector.findHands(img)
 
-while True:
-    success, img = cap.read()
-    img = cv2.flip(img, 1)
-    img_res = detector.findHands(img)
+        hands_queue.put((left_hand, right_hand))
 
-    if draw:
-        cv2.imshow('Image', img_res)
-    if cv2.waitKey(1) & 0xff == ord('q'):
-        break
+        if draw:
+            cv2.imshow('Image', img_res)
+        if cv2.waitKey(1) & 0xff == ord('q'):
+            break
