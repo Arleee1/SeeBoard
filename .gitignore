@@ -1,14 +1,7 @@
 .idea
 venv
-<<<<<<< Updated upstream
-<<<<<<< HEAD
 *.pyc
 apikey.txt
 directory.txt
-<<<<<<< Updated upstream
 __pycache__/
-=======
-=======
 directory.txt
->>>>>>> Stashed changes
->>>>>>> Stashed changes
