@@ -26,7 +26,6 @@ class GestureProcessor:
             self.mouse_click()
         else:
             if hand['is_open']:
-                print("reset")
                 self.hasClosedFor = 0
             else:
                 self.hasClosedFor += 1
