@@ -51,6 +51,7 @@ class TransparentKeyboard(QWidget):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.on_timeout)
         self.timer.start(int(1000 * (1. / constants.FRAME_RATE)) - 5)  # Call every 100 milliseconds
+
         self.processor = GestureProcessor(pyqt_gui=self)
 
     def on_timeout(self):
