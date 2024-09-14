@@ -8,6 +8,8 @@ from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import QTimer
 import threading
 
+from backend.keyboardControl import keyboardControl
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from cv.hands_reader import read_hands
 import constants
@@ -173,6 +175,8 @@ class TransparentKeyboard(QWidget):
         button = self.sender()  # Get the clicked button
         key_value = button.text()  # Get the key's text
         print(f"Key pressed: {key_value}")  # Print the key (You can customize this)
+        controller = keyboardControl()
+        controller.keyboardInput(key_value)
 
 
 # Main application code
