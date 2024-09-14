@@ -155,7 +155,7 @@ class TransparentKeyboard(QWidget):
             else:
                 self.layout.addWidget(button, 3, col + 1, 1, 1)
 
-        row_5 = ['Ctrl', 'Fn', 'Win', 'Alt', 'Space', 'Alt', 'Ctrl', 'Left', 'Down', 'Right', 'Opt']
+        row_5 = ['Ctrl', '', 'Win', 'Alt', 'Space', 'Alt', 'Ctrl', 'Left', 'Down', 'Right', 'Opt']
         # space key should take up the remaining space
         space_flag = False
         # if space_flag is true then add additional offset to remaining keys
