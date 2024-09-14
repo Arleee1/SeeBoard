@@ -52,10 +52,11 @@ class TransparentKeyboard(QWidget):
     def on_timeout(self):
         if not hands_queue.empty():
             left_hand, right_hand = hands_queue.get()
-            if right_hand.exists:
-                
-            elif left_hand.exists:
-                
+            print(left_hand, right_hand)
+            if right_hand["exists"]:
+                print("right exists")
+            elif left_hand["exists"]:
+                print("left exists")
             else:
                 print("No hands detected")
 
