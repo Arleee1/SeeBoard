@@ -1,8 +1,16 @@
 import sys
+from queue import Queue
+
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QPushButton, QGraphicsDropShadowEffect
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QColor
+from PyQt5.QtCore import QTimer
+import threading
+from cv.hands_reader import read_hands
+import constants
 
+
+hands_queue = Queue()
 class TransparentKeyboard(QWidget):
     def __init__(self):
         super().__init__()
@@ -30,6 +38,14 @@ class TransparentKeyboard(QWidget):
 
         # Set the layout to the window
         self.setLayout(self.layout)
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.on_timeout)
+        self.timer.start(int(1000*(1./constants.FRAME_RATE)) - 5)  # Call every 100 milliseconds
+
+    def on_timeout(self):
+        if not hands_queue.empty():
+            print(hands_queue.get())
 
     def button_style(self):
         """Returns the stylesheet for the buttons."""
@@ -141,11 +157,11 @@ class TransparentKeyboard(QWidget):
 
 # Main application code
 app = QApplication(sys.argv)
-
 # Create the main window (keyboard)
 keyboard = TransparentKeyboard()
-keyboard.setWindowTitle("Keyboard")
-keyboard.setGeometry(500, 60, 1600, 600)
+keyboard.setWindowTitle("Realistic Keyboard")
+keyboard.resize(1600, 600)  # Larger window size to accommodate keys and spacing
+threading.Thread(target=read_hands, args=(hands_queue,)).start()
 keyboard.show()
 
 # Execute the application
