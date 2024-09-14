@@ -31,9 +31,4 @@ class GestureToAction:
         pyautogui.click()
 
     def swap_mode(self):
-        if self.mode.get_mode() == "navigation":
-            self.mode.change_mode("keyboard")
-        elif self.mode.get_mode() == "keyboard":
-            self.mode.change_mode("drawing")
-        else:
-            self.mode.change_mode("navigation")
+        self.mode.swap_mode()
