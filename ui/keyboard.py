@@ -105,9 +105,9 @@ class TransparentKeyboard(QWidget):
                 self.layout.addWidget(button, 2, col, 1, 2)  # Caps Lock spans 2 columns
             else:
                 self.layout.addWidget(button, 2, col + 1, 1, 1)
-        # Larger Enter
+        # Adjust Enter to not overlap with the key next to it
         enter_button = self.create_key_button('Enter')
-        self.layout.addWidget(enter_button, 2, len(row_3) - 1, 1, 2)  # Span 2 columns
+        self.layout.addWidget(enter_button, 2, len(row_3), 1, 2)  # Adjusted to span 2 columns
 
         # Fourth row (Shift, ZXCV, etc.)
         row_4 = ['Shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/']
@@ -126,9 +126,9 @@ class TransparentKeyboard(QWidget):
         for col, key in enumerate(row_5):
             button = self.create_key_button(key)
             if key == 'Space':
-                self.layout.addWidget(button, 4, 1, 1, 7)  # Space spans 7 columns
+                self.layout.addWidget(button, 4, 2, 1, 7)  # Space spans 7 columns
             else:
-                self.layout.addWidget(button, 4, col, 1, 1)
+                self.layout.addWidget(button, 4, col, 1, 1)  # Ctrl and Alt keys don't overlap
 
     def handle_key_click(self):
         button = self.sender()  # Get the clicked button
