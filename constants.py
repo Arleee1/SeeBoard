@@ -1,2 +1,3 @@
 FRAME_RATE = 30
-draw_hands = False
+draw_hands = True
+print_hands = False
