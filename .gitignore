@@ -1,4 +1,6 @@
 .idea
 venv
+<<<<<<< HEAD
 *.pyc
 apikey.txt
+directory.txt

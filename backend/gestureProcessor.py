@@ -1,37 +1,50 @@
 import pyautogui
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QCursor
 from backend.mode import Mode
 from utils.gesture import Gesture
 
-class GestureToAction:
-    def __init__(self):
+class GestureProcessor:
+    def __init__(self, pyqt_gui):
         self.mode = Mode()
-        self.gestures_map = {
-            'pinch': self.mouse_click,
-            'rotate': self.swap_mode
-        }
+        self.pyqt_gui = pyqt_gui
+        self.screen_width, self.screen_height = pyautogui.size()
+        self.window_x, self.window_y = 0, 0
 
     def process_gesture(self, gesture: Gesture):
-  
-    def map_gesture(self, gesture_name):
-        if gesture_name in self.gestures_map:
-            return self.gestures_map[gesture_name]
-        else:
-            print("Gesture not found")
+        self.handle_movement(gesture.get_position())
 
-    def execute_gesture(self, function_name):
-        if callable(function_name):
-            function_name()
-        else:
-            print("Gesture not found")
+        if gesture.check_pinch():
+            self.mouse_click()
+
+        if gesture.get_angle() > 90:
+            self.swap_mode()
 
     def handle_movement(self, position):
-        screen_width, screen_height = pyautogui.size()
-        x = int(position[0] * screen_width)
-        y = int(position[1] * screen_height)
+        x = int(position[0] * self.screen_width)
+        y = int(position[1] * self.screen_height)
+        
+        if self.mode.get_mode() == "keyboard" and self.pyqt_gui:
+            x = max(self.window_x, min(x, self.window_x + self.screen_width))
+            y = max(self.window_y, min(y, self.window_y + self.screen_height))
+        
         pyautogui.moveTo(x, y)
 
     def mouse_click(self):
-        pyautogui.click()
+        if self.mode.get_mode() == "navigation":
+            pyautogui.click()
+        elif self.mode.get_mode() == "keyboard":
+            pyautogui.click()
+        else:
+            pass
 
     def swap_mode(self):
-        self.mode.swap_mode()
+        cur_mode = self.mode.swap_mode()
+        if cur_mode == "keyboard" and self.pyqt_gui:
+            window_geometry = self.pyqt_gui.geometry()
+            self.screen_width, self.screen_height = window_geometry.width(), window_geometry.height()
+            self.window_x, self.window_y = window_geometry.x(), window_geometry.y()
+        else:
+            self.screen_width, self.screen_height = pyautogui.size()
+            self.window_x = 0
+            self.window_y = 0
