@@ -68,11 +68,11 @@ class TransparentKeyboard(QWidget):
 
         # Set different sizes based on the key type
         if key == 'Space':
-            button.setFixedSize(600, 100)  # Large space key
+            button.setFixedSize(620, 110)  # Large space key
         elif key == 'Tab' or key == 'Caps Lock' or key == 'Shift' or key == 'Backspace' or key == 'Enter':
-            button.setFixedSize(240, 100)  # Larger modifier keys
+            button.setFixedSize(250, 110)  # Larger modifier keys
         else:
-            button.setFixedSize(120, 100)  # Regular size for other keys
+            button.setFixedSize(120, 110)  # Regular size for other keys
 
         button.clicked.connect(self.handle_key_click)
         return button
@@ -102,19 +102,17 @@ class TransparentKeyboard(QWidget):
         for col, key in enumerate(row_3[:-1]):
             button = self.create_key_button(key)
             if key == 'Caps Lock':
-                self.layout.addWidget(button, 2, col, 1, 2)  # Caps Lock spans 2 columns
+                self.layout.addWidget(button, 2, col, 1, 2)
             else:
                 self.layout.addWidget(button, 2, col + 1, 1, 1)
-        # Adjust Enter to not overlap with the key next to it
         enter_button = self.create_key_button('Enter')
-        self.layout.addWidget(enter_button, 2, len(row_3), 1, 2)  # Adjusted to span 2 columns
+        self.layout.addWidget(enter_button, 2, len(row_3), 1, 2) 
 
-        # Fourth row (Shift, ZXCV, etc.)
-        row_4 = ['Shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/']
+        row_4 = ['Shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', 'Up', 'Shift']
         for col, key in enumerate(row_4[:-1]):
             button = self.create_key_button(key)
             if key == 'Shift':
-                self.layout.addWidget(button, 3, col, 1, 2)  # Shift spans 2 columns
+                self.layout.addWidget(button, 3, col, 1, 2) 
             else:
                 self.layout.addWidget(button, 3, col + 1, 1, 1)
         # Add last key normally
@@ -122,13 +120,18 @@ class TransparentKeyboard(QWidget):
         self.layout.addWidget(last_button, 3, len(row_4), 1, 1)
 
         # Fifth row (Ctrl, Alt, Space, etc.)
-        row_5 = ['Ctrl', 'Alt', 'Space']
+        spaceExists = False
+        row_5 = ['Ctrl', 'Fn', 'Win', 'Alt', 'Space', 'Alt', 'Ctrl', 'Left', 'Down', 'Right']
         for col, key in enumerate(row_5):
             button = self.create_key_button(key)
             if key == 'Space':
-                self.layout.addWidget(button, 4, 2, 1, 7)  # Space spans 7 columns
+                self.layout.addWidget(button, 4, 4, 1, 7)  # Space spans 7 columns
+                spaceExists = True
             else:
-                self.layout.addWidget(button, 4, col, 1, 1)  # Ctrl and Alt keys don't overlap
+                if spaceExists:
+                    self.layout.addWidget(button, 4, col + 4, 1, 1)  # Shift the keys after Space
+                else:
+                    self.layout.addWidget(button, 4, col, 1, 1)  # Ctrl and Alt keys don't overlap
 
     def handle_key_click(self):
         button = self.sender()  # Get the clicked button
@@ -141,8 +144,8 @@ app = QApplication(sys.argv)
 
 # Create the main window (keyboard)
 keyboard = TransparentKeyboard()
-keyboard.setWindowTitle("Realistic Keyboard")
-keyboard.resize(1600, 600)  # Larger window size to accommodate keys and spacing
+keyboard.setWindowTitle("Keyboard")
+keyboard.setGeometry(500, 60, 1600, 600)
 keyboard.show()
 
 # Execute the application
