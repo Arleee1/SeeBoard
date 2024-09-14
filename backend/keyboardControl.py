@@ -1,4 +1,4 @@
-import pyautogui
+import keyboard
 import openai
 
 
@@ -15,26 +15,21 @@ class keyboardControl:
                                                            "If the last word is complete, attempt to predict the next "
                                                            "word."})
 
-    def keyboardInput(self, s: str, interval: float = 0):
-        pyautogui.typewrite([s], interval=interval)
+    def keyboardInput(self, s: str):
         if s == 'backspace':
+            keyboard.send('backspace')
             self.cache.pop()
         else:
+            keyboard.write(s)
             self.cache.extend(list(s))
 
-    def keyboardInputString(self, s: str, interval: float = 0):
-        pyautogui.typewrite(s, interval=interval)
-        self.cache.extend(list(s))
+    # def keyboardInputString(self, s: str, interval: float = 0):
+    #     pyautogui.typewrite(s, interval=interval)
+    #     self.cache.extend(list(s))
 
     # Walks backwards through the cache and removes all characters before the first whitespace
     def clearCache(self):
         self.cache = list()
-
-    def clickAt(self, x: float, y: float):
-        size = pyautogui.size()
-        x = int(x * size[0])
-        y = int(y * size[1])
-        pyautogui.click(x=x, y=y)
 
     def autocomplete(self):
         message = "".join(self.cache)
@@ -49,5 +44,6 @@ class keyboardControl:
 
 
 # controller = keyboardControl()
-# controller.keyboardInputString("I absolutely love talking about Python")
+# controller.keyboardInput("I absolutely love talking about Python")
+# controller.keyboardInput('backspace')
 # controller.autocomplete()
