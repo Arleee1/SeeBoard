@@ -15,4 +15,4 @@ class Mode:
             self.mode = "drawing"
         else:
             self.mode = "navigation"
-                    
+        return self.mode

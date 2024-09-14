@@ -9,6 +9,7 @@ import threading
 from cv.hands_reader import read_hands
 import constants
 
+from backend.gestureProcessor import GestureProcessor
 
 hands_queue = Queue()
 class TransparentKeyboard(QWidget):
@@ -45,7 +46,13 @@ class TransparentKeyboard(QWidget):
 
     def on_timeout(self):
         if not hands_queue.empty():
-            print(hands_queue.get())
+            left_hand, right_hand = hands_queue.get()
+            if right_hand.exists:
+                
+            elif left_hand.exists:
+                
+            else:
+                print("No hands detected")
 
     def button_style(self):
         """Returns the stylesheet for the buttons."""

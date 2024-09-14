@@ -1,3 +1,7 @@
 .idea
 venv
+<<<<<<< Updated upstream
 *.pyc
+=======
+directory.txt
+>>>>>>> Stashed changes
