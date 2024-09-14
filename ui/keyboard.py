@@ -54,6 +54,7 @@ class TransparentKeyboard(QWidget):
     def on_timeout(self):
         if not hands_queue.empty():
             left_hand, right_hand = hands_queue.get()
+            print(f"len: {hands_queue.qsize()}")
             if right_hand['exists']:
                 self.processor.process_gesture(right_hand)
             elif left_hand['exists']:

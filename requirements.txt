@@ -2,3 +2,4 @@ PyQt5
 pyautogui
 opencv-python
 mediapipe
+mouse

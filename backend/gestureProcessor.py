@@ -2,6 +2,7 @@ import pyautogui
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor
 from backend.mode import Mode
+import mouse
 
 class GestureProcessor:
     def __init__(self, pyqt_gui):
@@ -14,11 +15,11 @@ class GestureProcessor:
         print("Processing gesture")
         self.handle_movement((hand['x'], hand['y']))
 
-        if not hand['is_open']:
-            self.mouse_click()
-
-        if hand['angle'] > 120:
-            self.swap_mode()
+        # if not hand['is_open']:
+        #     self.mouse_click()
+        #
+        # if hand['angle'] > 120:
+        #     self.swap_mode()
 
     def handle_movement(self, position):
         print("Mouse move")
@@ -29,7 +30,8 @@ class GestureProcessor:
             x = max(self.window_x, min(x, self.window_x + self.screen_width))
             y = max(self.window_y, min(y, self.window_y + self.screen_height))
         
-        pyautogui.moveTo(x, y)
+        # pyautogui.moveTo(x, y)
+        mouse.move(x, y)
 
     def mouse_click(self):
         print("Mouse click")
