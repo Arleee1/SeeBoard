@@ -54,13 +54,12 @@ class TransparentKeyboard(QWidget):
     def on_timeout(self):
         if not hands_queue.empty():
             left_hand, right_hand = hands_queue.get()
-            print(f"len: {hands_queue.qsize()}")
             if right_hand['exists']:
                 self.processor.process_gesture(right_hand)
             elif left_hand['exists']:
                 self.processor.process_gesture(left_hand)
-            else:
-                print("No hands detected")
+            # else:
+                # print("No hands detected")
 
     def button_style(self):
         """Returns the stylesheet for the buttons."""
