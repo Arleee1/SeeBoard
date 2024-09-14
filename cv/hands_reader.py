@@ -6,6 +6,7 @@ from google.protobuf.json_format import MessageToDict
 
 draw = True
 
+
 class HandDetector:
     def __init__(self, mode=False, maxHands=2, modelComplexity=1, detectionCon=0.5, trackCon=0.5):
         self.mode = mode
@@ -113,15 +114,14 @@ class HandDetector:
 detector = HandDetector()
 
 cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # Width
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080) # Height
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
 
 while True:
     success, img = cap.read()
     img = cv2.flip(img, 1)
-    imgRGB = img
-    img_res = detector.findHands(imgRGB)
+    img_res = detector.findHands(img)
 
     if draw:
         cv2.imshow('Image', img_res)
