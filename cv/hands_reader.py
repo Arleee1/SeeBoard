@@ -7,6 +7,25 @@ from queue import Queue
 import constants
 
 
+class ExponentialMovingAverage:
+    def __init__(self, alpha=0.02):
+        self.alpha = alpha
+        self.ema = None  # Will be initialized with the first data point
+
+    def apply(self, raw_data):
+        if self.ema is None:
+            self.ema = raw_data  # Initialize the EMA with the first value
+        else:
+            self.ema = self.alpha * raw_data + (1 - self.alpha) * self.ema
+        return self.ema
+
+
+left_x_dampener = ExponentialMovingAverage()
+left_y_dampener = ExponentialMovingAverage()
+right_x_dampener = ExponentialMovingAverage()
+right_y_dampener = ExponentialMovingAverage()
+
+
 class HandDetector:
     def __init__(self, mode=False, maxHands=2, modelComplexity=1, detectionCon=0.5, trackCon=0.5):
         self.mode = mode
@@ -29,6 +48,8 @@ class HandDetector:
             "is_open": False,
             "x": -1,
             "y": -1,
+            "dampened_x": -1,
+            "dampened_y": -1,
             "angle": -1
         }
         right_hand = {
@@ -36,6 +57,8 @@ class HandDetector:
             "is_open": False,
             "x": -1,
             "y": -1,
+            "dampened_x": -1,
+            "dampened_y": -1,
             "angle": -1
         }
         if self.results.multi_hand_landmarks:
@@ -104,21 +127,34 @@ class HandDetector:
                     curr_open = False
 
                 if curr_side == "Left":
+                    dampened_x = left_x_dampener.apply(palm["x"])
+                    dampened_y = left_y_dampener.apply(palm["y"])
                     left_hand = {
                         "exists": True,
                         "is_open": curr_open,
                         "x": palm["x"],
                         "y": palm["y"],
+                        "dampened_x": dampened_x,
+                        "dampened_y": dampened_y,
                         "angle": angle
                     }
                 else:
+                    dampened_x = right_x_dampener.apply(palm["x"])
+                    dampened_y = right_y_dampener.apply(palm["y"])
                     right_hand = {
                         "exists": True,
                         "is_open": curr_open,
                         "x": palm["x"],
                         "y": palm["y"],
+                        "dampened_x": dampened_x,
+                        "dampened_y": dampened_y,
                         "angle": angle
                     }
+
+                if constants.draw_hands:
+                    img = cv2.circle(img, (
+                        int(img_width * dampened_x), int(img_height * dampened_y)), 20,
+                                     (0, 0, 0), -1)
 
         if constants.print_hands:
             print("left")
