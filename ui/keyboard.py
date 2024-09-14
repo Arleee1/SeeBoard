@@ -1,4 +1,5 @@
 import sys
+import os
 from queue import Queue
 
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QPushButton, QGraphicsDropShadowEffect
@@ -6,6 +7,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import QTimer
 import threading
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from cv.hands_reader import read_hands
 import constants
 
@@ -14,6 +17,8 @@ hands_queue = Queue()
 class TransparentKeyboard(QWidget):
     def __init__(self):
         super().__init__()
+
+        self.setCursor(Qt.BlankCursor)  # Hide the cursor
 
         # Track Caps Lock state (False = lowercase, True = uppercase)
         self.caps_lock_on = False
