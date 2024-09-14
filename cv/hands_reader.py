@@ -21,6 +21,7 @@ class HandDetector:
 
     def findHands(self, img):
         # imgRGB = img
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.hands.process(img)
 
         left_hand = {
