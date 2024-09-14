@@ -2,7 +2,6 @@ import pyautogui
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor
 from backend.mode import Mode
-from utils.gesture import Gesture
 
 class GestureProcessor:
     def __init__(self, pyqt_gui):
@@ -11,16 +10,18 @@ class GestureProcessor:
         self.screen_width, self.screen_height = pyautogui.size()
         self.window_x, self.window_y = 0, 0
 
-    def process_gesture(self, gesture: Gesture):
-        self.handle_movement(gesture.get_position())
+    def process_gesture(self, hand):
+        print("Processing gesture")
+        self.handle_movement((hand['x'], hand['y']))
 
-        if gesture.check_pinch():
+        if not hand['is_open']:
             self.mouse_click()
 
-        if gesture.get_angle() > 90:
+        if hand['angle'] > 120:
             self.swap_mode()
 
     def handle_movement(self, position):
+        print("Mouse move")
         x = int(position[0] * self.screen_width)
         y = int(position[1] * self.screen_height)
         
@@ -31,6 +32,7 @@ class GestureProcessor:
         pyautogui.moveTo(x, y)
 
     def mouse_click(self):
+        print("Mouse click")
         if self.mode.get_mode() == "navigation":
             pyautogui.click()
         elif self.mode.get_mode() == "keyboard":
@@ -39,6 +41,7 @@ class GestureProcessor:
             pass
 
     def swap_mode(self):
+        print("Swapping mode")
         cur_mode = self.mode.swap_mode()
         if cur_mode == "keyboard" and self.pyqt_gui:
             window_geometry = self.pyqt_gui.geometry()

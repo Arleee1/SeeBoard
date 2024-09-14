@@ -4,3 +4,4 @@ venv
 *.pyc
 apikey.txt
 directory.txt
+__pycache__/

@@ -49,13 +49,15 @@ class TransparentKeyboard(QWidget):
         self.timer.timeout.connect(self.on_timeout)
         self.timer.start(int(1000*(1./constants.FRAME_RATE)) - 5)  # Call every 100 milliseconds
 
+        self.processor = GestureProcessor(pyqt_gui=self)
+
     def on_timeout(self):
         if not hands_queue.empty():
             left_hand, right_hand = hands_queue.get()
-            if right_hand.exists:
-                
-            elif left_hand.exists:
-                
+            if right_hand['exists']:
+                self.processor.process_gesture(right_hand)
+            elif left_hand['exists']:
+                self.processor.process_gesture(left_hand)
             else:
                 print("No hands detected")
 
