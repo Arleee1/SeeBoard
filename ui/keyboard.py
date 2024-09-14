@@ -15,6 +15,7 @@ import constants
 from backend.gestureProcessor import GestureProcessor
 
 hands_queue = Queue()
+scale_factor = 1.4
 class TransparentKeyboard(QWidget):
     def __init__(self):
         super().__init__()
@@ -47,7 +48,7 @@ class TransparentKeyboard(QWidget):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.on_timeout)
-        self.timer.start(int(1000*(1./constants.FRAME_RATE)) - 5)  # Call every 100 milliseconds
+        self.timer.start(int(1000 * (1. / constants.FRAME_RATE)) - 5)  # Call every 100 milliseconds
 
         self.processor = GestureProcessor(pyqt_gui=self)
 
@@ -98,11 +99,11 @@ class TransparentKeyboard(QWidget):
 
         # Set different sizes based on the key type
         if key == 'Space':
-            button.setFixedSize(620, 110)  # Large space key
+            button.setFixedSize(int(620 * scale_factor), int(110 * scale_factor))  # Large space key
         elif key == 'Tab' or key == 'Caps Lock' or key == 'Shift' or key == 'Backspace' or key == 'Enter':
-            button.setFixedSize(250, 110)  # Larger modifier keys
+            button.setFixedSize(int(250 * scale_factor), int(110 * scale_factor))  # Larger modifier keys
         else:
-            button.setFixedSize(120, 110)  # Regular size for other keys
+            button.setFixedSize(int(120 * scale_factor), int(110 * scale_factor))  # Regular size for other keys
 
         button.clicked.connect(self.handle_key_click)
         return button
@@ -124,6 +125,8 @@ class TransparentKeyboard(QWidget):
             button = self.create_key_button(key)
             if key == 'Tab':
                 self.layout.addWidget(button, 1, col, 1, 2)  # Tab spans 2 columns
+            elif key == '\\':
+                self.layout.addWidget(button, 1, 14, 1, 1)
             else:
                 self.layout.addWidget(button, 1, col + 1, 1, 1)
 
@@ -139,29 +142,33 @@ class TransparentKeyboard(QWidget):
         self.layout.addWidget(enter_button, 2, len(row_3), 1, 2) 
 
         row_4 = ['Shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', 'Up', 'Shift']
-        for col, key in enumerate(row_4[:-1]):
+        first_shift_flag = True
+        # take into account column offset for the shift key
+        for col, key in enumerate(row_4):
             button = self.create_key_button(key)
             if key == 'Shift':
-                self.layout.addWidget(button, 3, col, 1, 2) 
+                if first_shift_flag:
+                    self.layout.addWidget(button, 3, col, 1, 2)
+                    first_shift_flag = False
+                else:
+                    self.layout.addWidget(button, 3, col + 1, 1, 2)
             else:
                 self.layout.addWidget(button, 3, col + 1, 1, 1)
-        # Add last key normally
-        last_button = self.create_key_button(row_4[-1])
-        self.layout.addWidget(last_button, 3, len(row_4), 1, 1)
 
-        # Fifth row (Ctrl, Alt, Space, etc.)
-        spaceExists = False
-        row_5 = ['Ctrl', 'Fn', 'Win', 'Alt', 'Space', 'Alt', 'Ctrl', 'Left', 'Down', 'Right']
+        row_5 = ['Ctrl', '', 'Win', 'Alt', 'Space', 'Alt', 'Ctrl', 'Left', 'Down', 'Right', 'Opt']
+        # space key should take up the remaining space
+        space_flag = False
+        # if space_flag is true then add additional offset to remaining keys
         for col, key in enumerate(row_5):
             button = self.create_key_button(key)
             if key == 'Space':
-                self.layout.addWidget(button, 4, 4, 1, 7)  # Space spans 7 columns
-                spaceExists = True
+                self.layout.addWidget(button, 4, col, 1, 7)
+                space_flag = True
             else:
-                if spaceExists:
-                    self.layout.addWidget(button, 4, col + 4, 1, 1)  # Shift the keys after Space
+                if space_flag:
+                    self.layout.addWidget(button, 4, col + 4, 1, 1)
                 else:
-                    self.layout.addWidget(button, 4, col, 1, 1)  # Ctrl and Alt keys don't overlap
+                    self.layout.addWidget(button, 4, col, 1, 1)
 
     def handle_key_click(self):
         button = self.sender()  # Get the clicked button
@@ -174,7 +181,7 @@ app = QApplication(sys.argv)
 # Create the main window (keyboard)
 keyboard = TransparentKeyboard()
 keyboard.setWindowTitle("Realistic Keyboard")
-keyboard.resize(1600, 600)  # Larger window size to accommodate keys and spacing
+keyboard.resize(int(1600 * scale_factor), int(600 * scale_factor))  # Larger window size to accommodate keys and spacing
 threading.Thread(target=read_hands, args=(hands_queue,)).start()
 keyboard.show()
 
