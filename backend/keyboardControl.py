@@ -16,9 +16,28 @@ class keyboardControl:
                                                            "word."})
 
     def keyboardInput(self, s: str):
-        if s == 'backspace':
+        if s == 'Backspace':
             keyboard.send('backspace')
-            self.cache.pop()
+            if (len(self.cache) > 0):
+                self.cache.pop()
+        elif s == 'Shift':
+            pass
+        elif s == 'Space':
+            keyboard.send('space')
+            s = ' '
+        elif s == 'Enter':
+            keyboard.send('enter')
+            s = ' '
+        elif s == 'Tab':
+            keyboard.send('tab')
+            s = ' '
+        elif s == 'Caps Lock':
+            pass
+        elif s == 'Ctrl':
+            pass
+        elif s == 'Win':
+            keyboard.send('win')
+            s = ' '
         else:
             keyboard.write(s)
             self.cache.extend(list(s))
