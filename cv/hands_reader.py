@@ -7,23 +7,45 @@ from queue import Queue
 import constants
 
 
-class ExponentialMovingAverage:
-    def __init__(self, alpha=0.02):
-        self.alpha = alpha
-        self.ema = None  # Will be initialized with the first data point
+class Dampener:
+    def __init__(self, alpha=0.9, threshold=0.1):
+        """
+        alpha: Smoothing factor for the low-pass filter (0 < alpha < 1)
+        threshold: Minimum movement threshold to ignore small, rapid motions
+        """
+        self.alpha = alpha  # Low-pass filter factor
+        self.threshold = threshold  # Ignore movements below this threshold
+        self.prev_filtered = None  # Start with no previous position until the first input
 
-    def apply(self, raw_data):
-        if self.ema is None:
-            self.ema = raw_data  # Initialize the EMA with the first value
-        else:
-            self.ema = self.alpha * raw_data + (1 - self.alpha) * self.ema
-        return self.ema
+    def apply(self, current_pos):
+        """
+        Apply a low-pass filter and threshold to the motion data.
+        :param current_pos: The current motion position (float)
+        :return: Filtered motion position (float)
+        """
+        if self.prev_filtered is None:
+            self.prev_filtered = current_pos
+            return current_pos
+
+            # Apply low-pass filter
+        filtered_pos = self.alpha * self.prev_filtered + (1 - self.alpha) * current_pos
+
+        # Calculate the difference between current and filtered positions
+        delta = abs(current_pos - filtered_pos)
+
+        # If movement is smaller than the threshold, treat it as noise (ignore it)
+        if delta < self.threshold:
+            return self.prev_filtered
+
+        # Otherwise, update and return the filtered position
+        self.prev_filtered = filtered_pos
+        return filtered_pos
 
 
-left_x_dampener = ExponentialMovingAverage()
-left_y_dampener = ExponentialMovingAverage()
-right_x_dampener = ExponentialMovingAverage()
-right_y_dampener = ExponentialMovingAverage()
+left_x_dampener = Dampener()
+left_y_dampener = Dampener()
+right_x_dampener = Dampener()
+right_y_dampener = Dampener()
 
 
 class HandDetector:
@@ -154,7 +176,7 @@ class HandDetector:
                 if constants.draw_hands:
                     img = cv2.circle(img, (
                         int(img_width * dampened_x), int(img_height * dampened_y)), 20,
-                                     (0, 0, 0), -1)
+                                     (0, 255, 0), -1)
 
         if constants.print_hands:
             print("left")

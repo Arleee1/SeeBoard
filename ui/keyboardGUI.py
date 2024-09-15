@@ -24,6 +24,7 @@ WS_EX_TOPMOST = 0x00000008
 hands_queue = Queue()
 scale_factor = constants.global_gui_scale
 
+
 class TransparentKeyboard(QWidget):
     def __init__(self):
         super().__init__()
@@ -273,6 +274,9 @@ x_position = (screen_geometry.width() - window_width) // 2
 y_position = 0  
 
 keyboard.setGeometry(x_position, y_position, window_width, window_height)
+
+threading.Thread(target=read_hands, args=(hands_queue,)).start()
+keyboard.show()
 
 keyboard.show()
 

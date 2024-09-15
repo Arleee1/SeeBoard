@@ -16,7 +16,7 @@ class GestureProcessor:
         self.has_changed_mode = True
 
     def process_gesture(self, hand):
-        self.handle_movement((hand['x'], hand['y']))
+        self.handle_movement((hand['dampened_x'], hand['dampened_y']))
 
         is_tilted = hand["angle"] > 135 or hand["angle"] < -135
 
