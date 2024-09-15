@@ -98,7 +98,7 @@ class TransparentKeyboard(QWidget):
 
         # Set different sizes based on the key type
         if key == 'Space':
-            button.setFixedSize(int(620 * scale_factor), int(110 * scale_factor))  # Large space key
+            button.setFixedSize(int(615 * scale_factor), int(110 * scale_factor))  # Large space key
         elif key == 'Tab' or key == 'Caps Lock' or key == 'Shift' or key == 'Backspace' or key == 'Enter':
             button.setFixedSize(int(250 * scale_factor), int(110 * scale_factor))  # Larger modifier keys
         else:
@@ -110,7 +110,7 @@ class TransparentKeyboard(QWidget):
     def generate_keyboard(self):
         """Generates a full keyboard layout with larger keys where necessary."""
         # First row (Tilde, numbers, and symbols)
-        row_1 = ['~', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 'Backspace']
+        row_1 = ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 'Backspace']
         for col, key in enumerate(row_1[:-1]):
             button = self.create_key_button(key)
             self.layout.addWidget(button, 0, col, 1, 1)
@@ -119,7 +119,10 @@ class TransparentKeyboard(QWidget):
         self.layout.addWidget(backspace_button, 0, len(row_1) - 1, 1, 2)  # Span 2 columns
 
         # Second row (Tab, QWERTY, symbols)
-        row_2 = ['Tab', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\\']
+        if self.caps_lock_on:
+            row_2 = ['Tab', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\\']
+        else:
+            row_2 = ['Tab', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\']
         for col, key in enumerate(row_2):
             button = self.create_key_button(key)
             if key == 'Tab':
@@ -130,7 +133,10 @@ class TransparentKeyboard(QWidget):
                 self.layout.addWidget(button, 1, col + 1, 1, 1)
 
         # Third row (Caps Lock, ASDF, Enter)
-        row_3 = ['Caps Lock', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\'', 'Enter']
+        if self.caps_lock_on:
+            row_3 = ['Caps Lock', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\'', 'Enter']
+        else:
+            row_3 = ['Caps Lock', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', 'Enter']
         for col, key in enumerate(row_3[:-1]):
             button = self.create_key_button(key)
             if key == 'Caps Lock':
@@ -140,7 +146,10 @@ class TransparentKeyboard(QWidget):
         enter_button = self.create_key_button('Enter')
         self.layout.addWidget(enter_button, 2, len(row_3), 1, 2) 
 
-        row_4 = ['Shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', 'Up', 'Shift']
+        if self.caps_lock_on:
+            row_4 = ['Shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', 'Up', 'Shift']
+        else: 
+            row_4 = ['Shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'Up', 'Shift']
         first_shift_flag = True
         # take into account column offset for the shift key
         for col, key in enumerate(row_4):
@@ -172,7 +181,20 @@ class TransparentKeyboard(QWidget):
     def handle_key_click(self):
         button = self.sender()  # Get the clicked button
         key_value = button.text()  # Get the key's text
+        if key_value == 'Caps Lock':
+            self.caps_lock_on = not self.caps_lock_on
+            self.clear_layout()
+            self.generate_keyboard()
         print(f"Key pressed: {key_value}")  # Print the key (You can customize this)
+
+    def clear_layout(self):
+        """Clears the layout by removing all widgets."""
+        while self.layout.count():
+            item = self.layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
 
 
 # Main application code
