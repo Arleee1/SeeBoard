@@ -15,29 +15,41 @@ class keyboardControl:
                                                            "If the last word is complete, attempt to predict the next "
                                                            "word."})
 
-    def keyboardInput(self, s: str):
+    def keyboardInput(self, string: str):
+        s = string
         if s == 'Backspace':
             keyboard.send('backspace')
             if (len(self.cache) > 0):
                 self.cache.pop()
         elif s == 'Shift':
-            pass
+            keyboard.send('shift')
         elif s == 'Space':
             keyboard.send('space')
-            s = ' '
+            self.cache.extend(' ')
         elif s == 'Enter':
             keyboard.send('enter')
-            s = ' '
+            self.cache.extend(' ')
         elif s == 'Tab':
             keyboard.send('tab')
-            s = ' '
+            self.cache.extend(' ')
         elif s == 'Caps Lock':
             pass
         elif s == 'Ctrl':
-            pass
+            keyboard.send('ctrl')
         elif s == 'Win':
             keyboard.send('win')
-            s = ' '
+        elif s == 'Alt':
+            keyboard.send('alt')
+        elif s == 'Up':
+            keyboard.send('up')
+        elif s == 'Down':
+            keyboard.send('down')
+        elif s == 'Left':
+            keyboard.send('left')
+        elif s == 'Right':
+            keyboard.send('right')
+        elif s == 'Flip':
+            pass
         else:
             keyboard.write(s)
             self.cache.extend(list(s))
