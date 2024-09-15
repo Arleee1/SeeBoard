@@ -75,6 +75,7 @@ class GestureProcessor:
 
     def swap_mode(self):
         cur_mode = self.mode.swap_mode()
+        self.reset_hand_close()
         if cur_mode == "keyboard" and self.pyqt_gui:
             window_geometry = self.pyqt_gui.geometry()
             self.screen_width, self.screen_height = window_geometry.width(), window_geometry.height()
