@@ -19,6 +19,7 @@ class GestureProcessor:
         self.tilt_ct = 0
         self.has_changed_mode = True
         self.isMousePressed = False
+        self.has_clicked = True
 
     def process_gesture(self, hand):
         self.handle_movement((hand['dampened_x'], hand['dampened_y']))
