@@ -2,7 +2,7 @@ import sys
 import os
 from queue import Queue
 
-from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QPushButton, QGraphicsDropShadowEffect
+from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QPushButton, QGraphicsDropShadowEffect, QDesktopWidget
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import QTimer
@@ -15,7 +15,7 @@ import constants
 from backend.gestureProcessor import GestureProcessor
 
 hands_queue = Queue()
-scale_factor = 1.4
+scale_factor = constants.global_gui_scale
 
 class TransparentKeyboard(QWidget):
     def __init__(self):
@@ -27,6 +27,8 @@ class TransparentKeyboard(QWidget):
         self.caps_lock_on = False
         self.shift_on = False
         self.running = True  # Control flag for the thread
+
+        self.view = False
 
         # Make the window background transparent and always stay on top
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -176,7 +178,7 @@ class TransparentKeyboard(QWidget):
             else:
                 self.layout.addWidget(button, 3, col + 1, 1, 1)
 
-        row_5 = ['Exit', 'Ctrl', 'Win', 'Alt', 'Space', 'Alt', 'Ctrl', 'Left', 'Down', 'Right', 'Flip']
+        row_5 = ['Exit', 'Ctrl', 'Win', 'Alt', 'Space', 'Alt', 'Ctrl', 'Left', 'Down', 'Right', 'View']
         # space key should take up the remaining space
         space_flag = False
 
@@ -203,7 +205,29 @@ class TransparentKeyboard(QWidget):
             self.clear_layout()
             self.generate_keyboard()
         elif key_value == 'Exit':
+            self.running = False 
             os._exit(1)
+        elif key_value == 'View':
+            # put the keyboard at the top/bottom of screen
+            if not self.view:
+                screen_geometry = QDesktopWidget().availableGeometry()
+                window_width = int(1600 * scale_factor)
+                window_height = int(600 * scale_factor)
+                x_position = (screen_geometry.width() - window_width) // 2
+                y_position = screen_geometry.height() - window_height
+                self.setGeometry(x_position, y_position, window_width, window_height)
+
+                self.view = True
+            else:
+                screen_geometry = QDesktopWidget().screenGeometry()
+                window_width = int(1600 * scale_factor)
+                window_height = int(600 * scale_factor)
+                x_position = (screen_geometry.width() - window_width) // 2
+                y_position = 0  
+                self.setGeometry(x_position, y_position, window_width, window_height)
+
+                self.view = False
+            
         print(f"Key pressed: {key_value}")  # Print the key (You can customize this)
 
     def clear_layout(self):
@@ -214,20 +238,21 @@ class TransparentKeyboard(QWidget):
             if widget is not None:
                 widget.deleteLater()
 
-    def exit_application(self):
-        """Exit the application and stop the subthread."""
-        self.running = False  # Stop the thread loop
-        self.thread.join()  # Wait for the thread to finish
-        QApplication.quit()  # Quit the application
 
-
-# Main application code
 app = QApplication(sys.argv)
-# Create the main window (keyboard)
 keyboard = TransparentKeyboard()
 keyboard.setWindowTitle("Realistic Keyboard")
-keyboard.resize(int(1600 * scale_factor), int(600 * scale_factor))  # Larger window size to accommodate keys and spacing
+
+screen_geometry = QDesktopWidget().screenGeometry()
+
+window_width = int(1600 * scale_factor)
+window_height = int(600 * scale_factor)
+
+x_position = (screen_geometry.width() - window_width) // 2
+y_position = 0  
+
+keyboard.setGeometry(x_position, y_position, window_width, window_height)
+
 keyboard.show()
 
-# Execute the application
 sys.exit(app.exec_())
