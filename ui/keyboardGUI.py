@@ -16,6 +16,7 @@ from backend.gestureProcessor import GestureProcessor
 
 hands_queue = Queue()
 scale_factor = 1.4
+
 class TransparentKeyboard(QWidget):
     def __init__(self):
         super().__init__()
@@ -24,6 +25,8 @@ class TransparentKeyboard(QWidget):
 
         # Track Caps Lock state (False = lowercase, True = uppercase)
         self.caps_lock_on = False
+        self.shift_on = False
+        self.running = True  # Control flag for the thread
 
         # Make the window background transparent and always stay on top
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -51,6 +54,14 @@ class TransparentKeyboard(QWidget):
         self.timer.start(int(1000*(1./constants.FRAME_RATE)) - 5)  # Call every 100 milliseconds
         self.processor = GestureProcessor(pyqt_gui=self)
 
+        # Start the thread
+        self.thread = threading.Thread(target=self.thread_worker)
+        self.thread.start()
+
+    def thread_worker(self):
+        while self.running:
+            read_hands(hands_queue)
+
     def on_timeout(self):
         if not hands_queue.empty():
             left_hand, right_hand = hands_queue.get()
@@ -58,11 +69,8 @@ class TransparentKeyboard(QWidget):
                 self.processor.process_gesture(right_hand)
             elif left_hand['exists']:
                 self.processor.process_gesture(left_hand)
-            # else:
-                # print("No hands detected")
 
     def button_style(self):
-        """Returns the stylesheet for the buttons."""
         return """
             QPushButton {
                 background-color: rgba(255, 255, 255, 0.6);
@@ -81,7 +89,6 @@ class TransparentKeyboard(QWidget):
         """
 
     def create_shadow(self):
-        """Creates and returns a shadow effect."""
         shadow = QGraphicsDropShadowEffect()
         shadow.setBlurRadius(10)
         shadow.setXOffset(3)
@@ -90,7 +97,6 @@ class TransparentKeyboard(QWidget):
         return shadow
 
     def create_key_button(self, key):
-        """Creates a QPushButton for a key with variable size based on the key type."""
         button = QPushButton(key)
         button.setStyleSheet(self.button_style())
         button.setGraphicsEffect(self.create_shadow())
@@ -108,9 +114,10 @@ class TransparentKeyboard(QWidget):
         return button
 
     def generate_keyboard(self):
-        """Generates a full keyboard layout with larger keys where necessary."""
-        # First row (Tilde, numbers, and symbols)
-        row_1 = ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 'Backspace']
+        if self.shift_on:
+            row_1 = ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 'Backspace']
+        else:
+            row_1 = ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 'Backspace']
         for col, key in enumerate(row_1[:-1]):
             button = self.create_key_button(key)
             self.layout.addWidget(button, 0, col, 1, 1)
@@ -119,7 +126,9 @@ class TransparentKeyboard(QWidget):
         self.layout.addWidget(backspace_button, 0, len(row_1) - 1, 1, 2)  # Span 2 columns
 
         # Second row (Tab, QWERTY, symbols)
-        if self.caps_lock_on:
+        if self.shift_on:
+            row_2 = ['Tab', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '|']
+        elif self.caps_lock_on:
             row_2 = ['Tab', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\\']
         else:
             row_2 = ['Tab', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\']
@@ -133,7 +142,9 @@ class TransparentKeyboard(QWidget):
                 self.layout.addWidget(button, 1, col + 1, 1, 1)
 
         # Third row (Caps Lock, ASDF, Enter)
-        if self.caps_lock_on:
+        if self.shift_on:
+            row_3 = ['Caps Lock', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', 'Enter']
+        elif self.caps_lock_on:
             row_3 = ['Caps Lock', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\'', 'Enter']
         else:
             row_3 = ['Caps Lock', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', 'Enter']
@@ -146,7 +157,9 @@ class TransparentKeyboard(QWidget):
         enter_button = self.create_key_button('Enter')
         self.layout.addWidget(enter_button, 2, len(row_3), 1, 2) 
 
-        if self.caps_lock_on:
+        if self.shift_on:
+            row_4 = ['Shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', 'Up', 'Shift']
+        elif self.caps_lock_on:
             row_4 = ['Shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', 'Up', 'Shift']
         else: 
             row_4 = ['Shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'Up', 'Shift']
@@ -166,7 +179,7 @@ class TransparentKeyboard(QWidget):
         row_5 = ['Exit', 'Ctrl', 'Win', 'Alt', 'Space', 'Alt', 'Ctrl', 'Left', 'Down', 'Right', 'Flip']
         # space key should take up the remaining space
         space_flag = False
-        # if space_flag is true then add additional offset to remaining keys
+
         for col, key in enumerate(row_5):
             button = self.create_key_button(key)
             if key == 'Space':
@@ -185,6 +198,12 @@ class TransparentKeyboard(QWidget):
             self.caps_lock_on = not self.caps_lock_on
             self.clear_layout()
             self.generate_keyboard()
+        elif key_value == 'Shift':
+            self.shift_on = not self.shift_on
+            self.clear_layout()
+            self.generate_keyboard()
+        elif key_value == 'Exit':
+            os._exit(1)
         print(f"Key pressed: {key_value}")  # Print the key (You can customize this)
 
     def clear_layout(self):
@@ -195,6 +214,11 @@ class TransparentKeyboard(QWidget):
             if widget is not None:
                 widget.deleteLater()
 
+    def exit_application(self):
+        """Exit the application and stop the subthread."""
+        self.running = False  # Stop the thread loop
+        self.thread.join()  # Wait for the thread to finish
+        QApplication.quit()  # Quit the application
 
 
 # Main application code
@@ -203,7 +227,6 @@ app = QApplication(sys.argv)
 keyboard = TransparentKeyboard()
 keyboard.setWindowTitle("Realistic Keyboard")
 keyboard.resize(int(1600 * scale_factor), int(600 * scale_factor))  # Larger window size to accommodate keys and spacing
-threading.Thread(target=read_hands, args=(hands_queue,)).start()
 keyboard.show()
 
 # Execute the application
