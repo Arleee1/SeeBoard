@@ -42,8 +42,8 @@ class GestureProcessor:
             self.has_clicked = False
 
         if self.hasClosedFor == 5 and not self.has_clicked:
-            self.hasClosedFor += 1
             self.mouse_click()
+            self.has_clicked = True
 
         if self.tilt_ct == 5 and not self.has_changed_mode:
             self.swap_mode()
