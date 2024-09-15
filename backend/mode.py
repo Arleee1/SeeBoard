@@ -11,8 +11,6 @@ class Mode:
     def swap_mode(self):
         if self.mode == "navigation":
             self.mode = "keyboard"
-        elif self.mode == "keyboard":
-            self.mode = "drawing"
         else:
             self.mode = "navigation"
         return self.mode
