@@ -87,7 +87,6 @@ class TransparentKeyboard(QWidget):
         user32.SetWindowLongPtrW(hWnd, GWL_EXSTYLE, newExStyle)
 
     def on_timeout(self):
-        navball = None
         if not hands_queue.empty():
             left_hand, right_hand = hands_queue.get()
             if right_hand['exists']:
@@ -114,6 +113,10 @@ class TransparentKeyboard(QWidget):
             if navball:
                 navball.hide()
             self.show()
+            if self.processor.lastNonKeyboardClick[1] > 0.5:
+                self.moveToTop()
+            elif self.processor.lastNonKeyboardClick[1] >= 0:
+                self.moveToBottom()
 
 
     def button_style(self):
@@ -250,27 +253,14 @@ class TransparentKeyboard(QWidget):
             self.generate_keyboard()
         elif key_value == 'Exit':
             self.running = False 
-            os._exit(1)
+            os._exit(0)
         elif key_value == 'View':
             # put the keyboard at the top/bottom of screen
             if not self.view:
-                screen_geometry = QDesktopWidget().availableGeometry()
-                window_width = int(1600 * scale_factor)
-                window_height = int(600 * scale_factor)
-                x_position = (screen_geometry.width() - window_width) // 2
-                y_position = screen_geometry.height() - window_height
-                self.setGeometry(x_position, y_position, window_width, window_height)
-
-                self.view = True
+                self.moveToBottom()
             else:
-                screen_geometry = QDesktopWidget().screenGeometry()
-                window_width = int(1600 * scale_factor)
-                window_height = int(600 * scale_factor)
-                x_position = (screen_geometry.width() - window_width) // 2
-                y_position = 0  
-                self.setGeometry(x_position, y_position, window_width, window_height)
-
-                self.view = False
+                self.moveToTop()
+            self.processor.lastNonKeyboardClick = (-1, -1)
             
         print(f"Key pressed: {key_value}")  # Print the key (You can customize this)
         controller = keyboardControl()
@@ -284,6 +274,7 @@ class TransparentKeyboard(QWidget):
             if widget is not None:
                 widget.deleteLater()
 
+
 app = QApplication(sys.argv)
 keyboard = TransparentKeyboard()
 keyboard.setWindowTitle("Realistic Keyboard")
@@ -294,7 +285,7 @@ window_width = int(1600 * scale_factor)
 window_height = int(600 * scale_factor)
 
 x_position = (screen_geometry.width() - window_width) // 2
-y_position = 0  
+y_position = 0
 
 keyboard.setGeometry(x_position, y_position, window_width, window_height)
 
