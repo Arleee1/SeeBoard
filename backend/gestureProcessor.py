@@ -6,7 +6,7 @@ from backend.mode import Mode
 import mouse
 
 left_bound_x, right_bound_x = .2, .8
-top_bound_y, bottom_bound_y = .2, .8
+top_bound_y, bottom_bound_y = .4, .8
 
 
 class GestureProcessor:
