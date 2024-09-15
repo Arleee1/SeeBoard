@@ -32,7 +32,16 @@ class GestureProcessor:
             self.tilt_ct = 0
             self.has_changed_mode = False
 
-        if not hand['is_open'] and self.hasClosedFor == 5:
+        is_closed = not hand['is_open']
+
+        if is_closed and not self.has_clicked:
+            self.hasClosedFor += 1
+
+        if not is_closed:
+            self.hasClosedFor = 0
+            self.has_clicked = False
+
+        if self.hasClosedFor == 5 and not self.has_clicked:
             self.hasClosedFor += 1
             self.mouse_click()
         else:
@@ -47,6 +56,9 @@ class GestureProcessor:
         if self.tilt_ct == 5 and not self.has_changed_mode:
             self.swap_mode()
             self.has_changed_mode = True
+
+    def reset_hand_close(self):
+        self.hasClosedFor = 0
 
     def handle_movement(self, position):
         x = (position[0] - left_bound_x) / (right_bound_x - left_bound_x) * self.screen_width
