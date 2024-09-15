@@ -69,7 +69,13 @@ class TransparentKeyboard(QWidget):
 
         self.navball = NavballWidget([0, 0])
         self.navball.setWindowTitle("Navball")
-        self.navball.setGeometry(100, 100, 400, 400)
+        screen_geometry = QApplication.desktop().availableGeometry()
+        navball_width = 400
+        navball_height = 400
+        x_position = 0
+        y_position = screen_geometry.height() - navball_height
+
+        self.navball.setGeometry(x_position, y_position, navball_width, navball_height)
 
     def set_no_activate(self):
         # Get window handle (HWND)

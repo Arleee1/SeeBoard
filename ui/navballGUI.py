@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget
-from PyQt5.QtGui import QPainter, QPen, QFont, QBrush
+from PyQt5.QtGui import QPainter, QPen, QBrush
 from PyQt5.QtCore import Qt, QPointF, QTimer
 from math import atan2, degrees, sqrt
 
@@ -16,7 +16,8 @@ class NavballWidget(QWidget):
     def initUI(self):
         self.setMinimumSize(400, 400)
         self.setWindowTitle('Navball')
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)  # Add WindowStaysOnTopHint
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.WA_TranslucentBackground)
+        self.setAttribute(Qt.WA_TranslucentBackground)
 
         # Timer to update the widget periodically
         self.timer = QTimer(self)
@@ -39,15 +40,6 @@ class NavballWidget(QWidget):
 
         # Draw the velocity vector dot
         self.draw_dot(painter, center, radius, self.vel, self.magnitude, Qt.red)
-
-        # Draw labels with formatted floats
-        painter.setPen(Qt.black)
-        font = QFont()
-        font.setPointSize(10)
-        painter.setFont(font)
-        painter.drawText(10, 20, f"Velocity: ({self.vel[0]:.2f}, {self.vel[1]:.2f})")
-        painter.drawText(10, 40, f"Magnitude: {self.magnitude:.2f}")
-        painter.drawText(10, 60, f"Angle: {self.angle:.2f}°")
 
     def draw_dot(self, painter, center, radius, vel, magnitude, color):
         painter.save()
@@ -90,5 +82,9 @@ class NavballWidget(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     navball = NavballWidget([1, 1])
+    screen_geometry = app.desktop().availableGeometry()
+    screen_width = screen_geometry.width()
+    screen_height = screen_geometry.height()
+    navball.move(0, screen_height - navball.height())
     navball.show()
     sys.exit(app.exec_())
