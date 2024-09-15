@@ -51,6 +51,7 @@ class GestureProcessor:
 
     def reset_hand_close(self):
         self.hasClosedFor = 0
+        self.has_clicked = True
 
     def handle_movement(self, position):
         # x = int(position[0] * self.screen_width)
