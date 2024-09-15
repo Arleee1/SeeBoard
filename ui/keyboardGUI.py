@@ -34,7 +34,7 @@ class TransparentKeyboard(QWidget):
         self.shift_on = False
         self.running = True  # Control flag for the thread
 
-        self.view = False
+        self.view = True
 
         # Make the window background transparent and always stay on top
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -263,19 +263,14 @@ app = QApplication(sys.argv)
 keyboard = TransparentKeyboard()
 keyboard.setWindowTitle("Realistic Keyboard")
 
-screen_geometry = QDesktopWidget().screenGeometry()
-
+screen_geometry = QDesktopWidget().availableGeometry()
 window_width = int(1600 * scale_factor)
 window_height = int(600 * scale_factor)
-
 x_position = (screen_geometry.width() - window_width) // 2
-y_position = 0  
-
+y_position = screen_geometry.height() - window_height
 keyboard.setGeometry(x_position, y_position, window_width, window_height)
 
 threading.Thread(target=read_hands, args=(hands_queue,)).start()
-keyboard.show()
-
 keyboard.show()
 
 sys.exit(app.exec_())
