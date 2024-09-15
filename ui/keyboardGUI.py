@@ -64,6 +64,7 @@ class TransparentKeyboard(QWidget):
         self.timer.timeout.connect(self.on_timeout)
         self.timer.start(int(1000*(1./constants.FRAME_RATE)) - 5)  # Call every 100 milliseconds
         self.processor = GestureProcessor(pyqt_gui=self)
+        self.mode = self.processor.mode.mode
 
     def set_no_activate(self):
         # Get window handle (HWND)
@@ -91,6 +92,11 @@ class TransparentKeyboard(QWidget):
                 self.processor.process_gesture(right_hand)
             elif left_hand['exists']:
                 self.processor.process_gesture(left_hand)
+        if self.processor.mode.mode != 'keyboard':
+            self.hide()
+        else:
+            self.show()
+
 
     def button_style(self):
         return """
