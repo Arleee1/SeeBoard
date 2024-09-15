@@ -102,10 +102,12 @@ class GestureProcessor:
         dist = norm(diff)
         controller_coords_unit_vec = diff / dist if dist != 0 else numpy.array([0, 0])
 
-        if dist < 40:
+        zero_dist = 300
+
+        if dist < zero_dist:
             velocity = numpy.array([0, 0])
         else:
-            velocity = (0.1 * (dist - 40)) * controller_coords_unit_vec
+            velocity = (0.03 * (dist - zero_dist)) * controller_coords_unit_vec
 
         velocity_magnitude = norm(velocity)
         if velocity_magnitude != 0:
@@ -114,6 +116,10 @@ class GestureProcessor:
         res = velocity
 
         velocity = velocity * numpy.sqrt(dist)
+
+        max_velocity = 10
+        if velocity_magnitude > max_velocity:
+            velocity = res * max_velocity
 
         self.pos_x += velocity[0] * velocity_x_scale
         self.pos_y += velocity[1] * velocity_y_scale
