@@ -106,7 +106,7 @@ class TransparentKeyboard(QWidget):
 
         # Set different sizes based on the key type
         if key == 'Space':
-            button.setFixedSize(int(615 * scale_factor), int(110 * scale_factor))  # Large space key
+            button.setFixedSize(int(620 * scale_factor), int(110 * scale_factor))  # Large space key
         elif key == 'Tab' or key == 'Caps Lock' or key == 'Shift' or key == 'Backspace' or key == 'Enter':
             button.setFixedSize(int(250 * scale_factor), int(110 * scale_factor))  # Larger modifier keys
         else:
