@@ -1,3 +1,5 @@
+import math
+
 import mouse
 import numpy
 import pyautogui
@@ -107,22 +109,28 @@ class GestureProcessor:
         if dist < zero_dist:
             velocity = numpy.array([0, 0])
         else:
-            velocity = (0.03 * (dist - zero_dist)) * controller_coords_unit_vec
+            velocity = (0.01 * (dist - zero_dist)) * controller_coords_unit_vec
 
         velocity_magnitude = norm(velocity)
+        velocity_unit = velocity
         if velocity_magnitude != 0:
-            velocity = velocity / velocity_magnitude
+            velocity_unit = velocity / velocity_magnitude
 
-        res = velocity
+        res = velocity_unit
 
-        velocity = velocity * numpy.sqrt(dist)
+        # velocity = velocity * (dist)
+
+        if velocity_magnitude > 1:
+            velocity = velocity / math.sqrt(velocity_magnitude)
 
         max_velocity = 10
         if velocity_magnitude > max_velocity:
-            velocity = res * max_velocity
+            velocity = velocity_unit * max_velocity
 
         self.pos_x += velocity[0] * velocity_x_scale
         self.pos_y += velocity[1] * velocity_y_scale
+
+        print(self.pos_x, self.pos_y)
 
         self.pos_x = max(0, min(self.pos_x, self.screen_width))
         self.pos_y = max(0, min(self.pos_y, self.screen_height))
