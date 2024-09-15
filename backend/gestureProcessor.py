@@ -22,7 +22,8 @@ class GestureProcessor:
 
     def process_gesture(self, hand):
         if self.mode.get_mode() == "navigation":
-            self.handle_navigation_movement((hand['velocity_x'], hand['velocity_y']))
+            # self.handle_navigation_movement((hand['velocity_x'], hand['velocity_y']))
+            pass
         else:
             self.handle_keyboard_movement((hand['dampened_x'], hand['dampened_y']))
 
