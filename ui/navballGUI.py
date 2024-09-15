@@ -56,8 +56,17 @@ class NavballWidget(QWidget):
 
         # Calculate the position of the dot based on velocity and magnitude
         dot_radius = 10  # Radius of the dot
-        dot_x = center.x() + vel[0] * (radius / 10) * (magnitude / 10)  # Adjust the divisor to scale appropriately
-        dot_y = center.y() - vel[1] * (radius / 10) * (magnitude / 10)  # Adjust the divisor to scale appropriately
+        vel_magnitude = sqrt(vel[0]**2 + vel[1]**2)
+        
+        if vel_magnitude == 0:
+            scale = 0
+        elif magnitude > 1000:
+            scale = radius / vel_magnitude
+        else:
+            scale = (radius / 1000) * magnitude / vel_magnitude
+
+        dot_x = center.x() + vel[0] * scale  # Invert x
+        dot_y = center.y() + vel[1] * scale  # Invert y
 
         # Draw the dot
         painter.drawEllipse(QPointF(dot_x, dot_y), dot_radius, dot_radius)
@@ -66,8 +75,8 @@ class NavballWidget(QWidget):
 
     def calculate_velocity_angle(self, vel):
         # Calculate angle based on velocity components
-        dx = vel[1]  # Swap x and y, and negate
-        dy = vel[0]  # Swap x and y, and negate
+        dx = -vel[1]  # Swap x and y, and negate
+        dy = -vel[0]  # Swap x and y, and negate
         angle = degrees(atan2(dy, dx))
         return angle
 
