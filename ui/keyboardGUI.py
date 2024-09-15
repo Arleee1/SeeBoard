@@ -273,6 +273,9 @@ y_position = 0
 
 keyboard.setGeometry(x_position, y_position, window_width, window_height)
 
+threading.Thread(target=read_hands, args=(hands_queue,)).start()
+keyboard.show()
+
 keyboard.show()
 
 sys.exit(app.exec_())
