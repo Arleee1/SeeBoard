@@ -67,6 +67,10 @@ class TransparentKeyboard(QWidget):
         self.processor = GestureProcessor(pyqt_gui=self)
         self.mode = self.processor.mode.mode
 
+        self.navball = NavballWidget([0, 0])
+        self.navball.setWindowTitle("Navball")
+        self.navball.setGeometry(100, 100, 400, 400)
+
     def set_no_activate(self):
         # Get window handle (HWND)
         hWnd = self.winId()
@@ -87,33 +91,36 @@ class TransparentKeyboard(QWidget):
         user32.SetWindowLongPtrW(hWnd, GWL_EXSTYLE, newExStyle)
 
     def on_timeout(self):
-        navball = None
         if not hands_queue.empty():
             left_hand, right_hand = hands_queue.get()
             if right_hand['exists']:
                 velocity = self.processor.process_gesture(right_hand)
-                # if velocity is not None:
-                #     navball = NavballWidget(velocity)
-                #     navball.setWindowTitle("Navball")
-                #     navball.setGeometry(100, 100, 400, 400)  # Set initial position and size
+                if velocity is not None:
+                    self.update_navball(velocity)
             elif left_hand['exists']:
                 velocity = self.processor.process_gesture(left_hand)
-                # if velocity is not None:
-                #     navball = NavballWidget(velocity)
-                #     navball.setWindowTitle("Navball")
-                #     navball.setGeometry(100, 100, 400, 400)  # Set initial position and size
+                if velocity is not None:
+                    self.update_navball(velocity)
+
         if self.processor.mode.mode != 'keyboard':
-            if navball:
-                navball.show()
-            self.hide()
+            self.hide_keyboard_show_navball()
         else:
-            if navball:
-                navball.hide()
-            self.show()
+            self.show_keyboard_hide_navball()
             if self.processor.lastNonKeyboardClick[1] > 0.5:
                 self.moveToTop()
             elif self.processor.lastNonKeyboardClick[1] >= 0:
                 self.moveToBottom()
+
+    def update_navball(self, velocity):
+        self.navball.update_velocity(velocity)
+    
+    def hide_keyboard_show_navball(self):
+        self.navball.show()
+        self.hide()
+    
+    def show_keyboard_hide_navball(self):
+        self.navball.hide()
+        self.show()
 
     def moveToBottom(self):
         screen_geometry = QDesktopWidget().availableGeometry()

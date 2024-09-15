@@ -6,9 +6,9 @@ from math import atan2, degrees
 
 
 class NavballWidget(QWidget):
-    def __init__(self, vel, parent=None):
+    def __init__(self, vel=None, parent=None):
         super().__init__(parent)
-        self.vel = vel  # Velocity vector [vx, vy]
+        self.vel = vel if vel is not None else [0, 0]  # Default velocity vector [vx, vy]
         self.initUI()
 
     def initUI(self):
@@ -59,7 +59,18 @@ class NavballWidget(QWidget):
 
     def calculate_velocity_angle(self, vel):
         # Calculate angle based on velocity components
-        dx = vel[0]
-        dy = vel[1]
+        dx = vel[0]  # Use x as dx
+        dy = vel[1]  # Use y as dy
         angle = degrees(atan2(dy, dx))
         return angle
+
+    def update_velocity(self, vel):
+        self.vel = vel  # Use the velocity as is
+        self.update()  # Trigger a repaint
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    navball = NavballWidget([1, 1])
+    navball.show()
+    sys.exit(app.exec_())
