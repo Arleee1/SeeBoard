@@ -86,6 +86,7 @@ class TransparentKeyboard(QWidget):
         user32.SetWindowLongPtrW(hWnd, GWL_EXSTYLE, newExStyle)
 
     def on_timeout(self):
+        self.processor.set_frame_geometry(self.geometry())
         if not hands_queue.empty():
             left_hand, right_hand = hands_queue.get()
             if right_hand['exists']:

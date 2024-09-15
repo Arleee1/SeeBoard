@@ -1,6 +1,6 @@
 import mouse
 import pyautogui
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QCursor
 from backend.mode import Mode
 import mouse
@@ -20,6 +20,10 @@ class GestureProcessor:
         self.has_changed_mode = True
         self.isMousePressed = False
         self.has_clicked = True
+        self.qt_left_x = -1
+        self.qt_width = -1
+        self.qt_top_y = -1
+        self.qt_height = -1
 
     def process_gesture(self, hand):
         self.handle_movement((hand['dampened_x'], hand['dampened_y']))
@@ -57,20 +61,47 @@ class GestureProcessor:
             self.swap_mode()
             self.has_changed_mode = True
 
+    def set_frame_geometry(self, geometry: QRect):
+        self.qt_left_x = geometry.left()
+        self.qt_width = geometry.width()
+        self.qt_top_y = geometry.top()
+        self.qt_height = geometry.height()
+
     def reset_hand_close(self):
         self.hasClosedFor = 0
         self.has_clicked = True
 
     def handle_movement(self, position):
-        x = (position[0] - left_bound_x) / (right_bound_x - left_bound_x) * self.screen_width
-        y = (position[1] - top_bound_y) / (bottom_bound_y - top_bound_y) * self.screen_height
+        x = (position[0] - left_bound_x) / (right_bound_x - left_bound_x)
+        y = (position[1] - top_bound_y) / (bottom_bound_y - top_bound_y)
 
-        margin = 10
+        # print(f"norm: {x, y}", end="")
+
         if self.mode.get_mode() == "keyboard" and self.pyqt_gui:
-            x = max(self.window_x + margin, min(x, self.window_x + self.screen_width) - margin)
-            y = max(self.window_y + margin, min(y + self.window_y, self.window_y + self.screen_height) - margin)
-        
-        mouse.move(x, y)
+            # x = max(self.window_x + margin, min(x, self.window_x + self.screen_width) - margin)
+            # y = max(self.window_y + margin, min(y + self.window_y, self.window_y + self.screen_height) - margin)
+            # print(f", w: {self.qt_width}, l: {self.qt_left_x}, h: {self.qt_height}, t: {self.qt_top_y}", end="")
+            x = x*self.qt_width + self.qt_left_x
+            y = y*self.qt_height + self.qt_top_y
+            # print(f", x,y: {x, y}")
+
+            margin = 15
+            if x < self.qt_left_x + margin:
+                x = self.qt_left_x + margin
+            if x > self.qt_left_x + self.qt_width - margin:
+                x = self.qt_left_x + self.qt_width - margin
+
+            if y < self.qt_top_y + margin:
+                y = self.qt_top_y + margin
+            if y > self.qt_top_y + self.qt_height - margin:
+                y = self.qt_top_y + self.qt_height - margin
+
+            mouse.move(x, y)
+
+        if self.mode.get_mode() == "navigation":
+            x = x * self.screen_width
+            y = y * self.screen_height
+            mouse.move(x, y)
 
     def mouse_click(self):
         if self.mode.get_mode() == "navigation":
