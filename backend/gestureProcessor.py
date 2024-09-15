@@ -18,6 +18,7 @@ class GestureProcessor:
         self.hasClosedFor = 0
         self.tilt_ct = 0
         self.has_changed_mode = True
+        self.lastNonKeyboardClick = (0, 0)
         self.isMousePressed = False
         self.has_clicked = True
         self.qt_left_x = -1
@@ -48,6 +49,9 @@ class GestureProcessor:
 
         if self.hasClosedFor == 5 and not self.has_clicked:
             self.mouse_click()
+            if self.mode.mode != "keyboard":
+                self.lastNonKeyboardClick = (hand['dampened_x'], hand['dampened_y'])
+            print(self.lastNonKeyboardClick)
         else:
             if hand['is_open']:
                 self.hasClosedFor = 0
@@ -116,11 +120,14 @@ class GestureProcessor:
         cur_mode = self.mode.swap_mode()
         self.reset_hand_close()
         if cur_mode == "keyboard" and self.pyqt_gui:
-            window_geometry = self.pyqt_gui.geometry()
-            self.screen_width, self.screen_height = window_geometry.width(), window_geometry.height()
-            self.window_x, self.window_y = window_geometry.x(), window_geometry.y()
+            self.updateGeometry()
         else:
             self.screen_width, self.screen_height = pyautogui.size()
             self.window_x = 0
             self.window_y = 0
         print("Mode swapped to", cur_mode)
+
+    def updateGeometry(self):
+        window_geometry = self.pyqt_gui.geometry()
+        self.screen_width, self.screen_height = window_geometry.width(), window_geometry.height()
+        self.window_x, self.window_y = window_geometry.x(), window_geometry.y()
