@@ -5,6 +5,10 @@ from PyQt5.QtGui import QCursor
 from backend.mode import Mode
 import mouse
 
+left_bound_x, right_bound_x = .2, .8
+top_bound_y, bottom_bound_y = .2, .8
+
+
 class GestureProcessor:
     def __init__(self, pyqt_gui):
         self.mode = Mode()
@@ -41,8 +45,10 @@ class GestureProcessor:
             self.has_changed_mode = True
 
     def handle_movement(self, position):
-        x = int(position[0] * self.screen_width)
-        y = int(position[1] * self.screen_height)
+        # x = int(position[0] * self.screen_width)
+        # y = int(position[1] * self.screen_height)
+        x = (position[0] - left_bound_x) / (right_bound_x - left_bound_x) * self.screen_width
+        y = (position[1] - top_bound_y) / (bottom_bound_y - top_bound_y) * self.screen_height
         
         if self.mode.get_mode() == "keyboard" and self.pyqt_gui:
             x = max(self.window_x, min(x, self.window_x + self.screen_width))
