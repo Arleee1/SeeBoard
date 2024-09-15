@@ -1,20 +1,27 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget
-from PyQt5.QtGui import QPainter, QPen, QFont
-from PyQt5.QtCore import Qt, QPointF
-from math import atan2, degrees
+from PyQt5.QtGui import QPainter, QPen, QFont, QBrush
+from PyQt5.QtCore import Qt, QPointF, QTimer
+from math import atan2, degrees, sqrt
 
 
 class NavballWidget(QWidget):
     def __init__(self, vel=None, parent=None):
         super().__init__(parent)
         self.vel = vel if vel is not None else [0, 0]  # Default velocity vector [vx, vy]
+        self.magnitude = sqrt(self.vel[0]**2 + self.vel[1]**2)
+        self.angle = self.calculate_velocity_angle(self.vel)
         self.initUI()
 
     def initUI(self):
         self.setMinimumSize(400, 400)
         self.setWindowTitle('Navball')
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)  # Add WindowStaysOnTopHint
+
+        # Timer to update the widget periodically
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update)
+        self.timer.start(100)  # Update every 100 ms
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -30,9 +37,8 @@ class NavballWidget(QWidget):
         painter.setPen(QPen(Qt.black, 2))
         painter.drawEllipse(center, radius, radius)
 
-        # Draw the velocity vector pointer
-        vel_angle = self.calculate_velocity_angle(self.vel)
-        self.draw_pointer(painter, center, radius, vel_angle, Qt.red)
+        # Draw the velocity vector dot
+        self.draw_dot(painter, center, radius, self.vel, self.magnitude, Qt.red)
 
         # Draw labels with formatted floats
         painter.setPen(Qt.black)
@@ -40,32 +46,35 @@ class NavballWidget(QWidget):
         font.setPointSize(10)
         painter.setFont(font)
         painter.drawText(10, 20, f"Velocity: ({self.vel[0]:.2f}, {self.vel[1]:.2f})")
+        painter.drawText(10, 40, f"Magnitude: {self.magnitude:.2f}")
+        painter.drawText(10, 60, f"Angle: {self.angle:.2f}°")
 
-    def draw_pointer(self, painter, center, radius, angle, color):
+    def draw_dot(self, painter, center, radius, vel, magnitude, color):
         painter.save()
-        painter.translate(center)
-        painter.rotate(-angle)  # Rotate coordinate system
         painter.setPen(QPen(color, 3))
+        painter.setBrush(QBrush(color, Qt.SolidPattern))
 
-        # Draw pointer line
-        painter.drawLine(0, 0, 0, int(-radius + 20))  # Cast radius to int
+        # Calculate the position of the dot based on velocity and magnitude
+        dot_radius = 10  # Radius of the dot
+        dot_x = center.x() + vel[0] * (radius / 10) * (magnitude / 10)  # Adjust the divisor to scale appropriately
+        dot_y = center.y() - vel[1] * (radius / 10) * (magnitude / 10)  # Adjust the divisor to scale appropriately
 
-        # Draw arrowhead
-        arrow_size = 10
-        painter.drawLine(0, int(-radius + 20), int(-arrow_size / 2), int(-radius + 20 + arrow_size))
-        painter.drawLine(0, int(-radius + 20), int(arrow_size / 2), int(-radius + 20 + arrow_size))
+        # Draw the dot
+        painter.drawEllipse(QPointF(dot_x, dot_y), dot_radius, dot_radius)
 
         painter.restore()
 
     def calculate_velocity_angle(self, vel):
         # Calculate angle based on velocity components
-        dx = vel[0]  # Use x as dx
-        dy = vel[1]  # Use y as dy
+        dx = vel[1]  # Swap x and y, and negate
+        dy = vel[0]  # Swap x and y, and negate
         angle = degrees(atan2(dy, dx))
         return angle
 
-    def update_velocity(self, vel):
+    def update_navball(self, vel, magnitude):
         self.vel = vel  # Use the velocity as is
+        self.magnitude = magnitude
+        self.angle = self.calculate_velocity_angle(vel)
         self.update()  # Trigger a repaint
 
 

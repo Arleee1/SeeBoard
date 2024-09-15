@@ -94,13 +94,15 @@ class TransparentKeyboard(QWidget):
         if not hands_queue.empty():
             left_hand, right_hand = hands_queue.get()
             if right_hand['exists']:
-                velocity = self.processor.process_gesture(right_hand)
-                if velocity is not None:
-                    self.update_navball(velocity)
+                res = self.processor.process_gesture(right_hand)
+                if res is not None:
+                    velocity, distance = res
+                    self.update_navball(velocity, distance)
             elif left_hand['exists']:
-                velocity = self.processor.process_gesture(left_hand)
-                if velocity is not None:
-                    self.update_navball(velocity)
+                res = self.processor.process_gesture(left_hand)
+                if res is not None:
+                    velocity, distance = res
+                    self.update_navball(velocity, distance)
 
         if self.processor.mode.mode != 'keyboard':
             self.hide_keyboard_show_navball()
@@ -111,8 +113,8 @@ class TransparentKeyboard(QWidget):
             elif self.processor.lastNonKeyboardClick[1] >= 0:
                 self.moveToBottom()
 
-    def update_navball(self, velocity):
-        self.navball.update_velocity(velocity)
+    def update_navball(self, velocity, distance):
+        self.navball.update_navball(velocity, distance)
     
     def hide_keyboard_show_navball(self):
         self.navball.show()

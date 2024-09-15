@@ -123,7 +123,7 @@ class GestureProcessor:
 
         mouse.move(self.pos_x, self.pos_y)
 
-        return res
+        return (res, dist)
 
     def handle_keyboard_movement(self, position):
         x = (position[0] - left_bound_x) / (right_bound_x - left_bound_x) * self.screen_width
