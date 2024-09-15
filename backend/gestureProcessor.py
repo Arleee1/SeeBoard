@@ -18,6 +18,7 @@ class GestureProcessor:
         self.hasClosedFor = 0
         self.tilt_ct = 0
         self.has_changed_mode = True
+        self.has_clicked = True
 
     def process_gesture(self, hand):
         self.handle_movement((hand['dampened_x'], hand['dampened_y']))
@@ -31,18 +32,25 @@ class GestureProcessor:
             self.tilt_ct = 0
             self.has_changed_mode = False
 
-        if not hand['is_open'] and self.hasClosedFor == 5:
+        is_closed = not hand['is_open']
+
+        if is_closed and not self.has_clicked:
+            self.hasClosedFor += 1
+
+        if not is_closed:
+            self.hasClosedFor = 0
+            self.has_clicked = False
+
+        if self.hasClosedFor == 5 and not self.has_clicked:
             self.hasClosedFor += 1
             self.mouse_click()
-        else:
-            if hand['is_open']:
-                self.hasClosedFor = 0
-            else:
-                self.hasClosedFor += 1
 
         if self.tilt_ct == 5 and not self.has_changed_mode:
             self.swap_mode()
             self.has_changed_mode = True
+
+    def reset_hand_close(self):
+        self.hasClosedFor = 0
 
     def handle_movement(self, position):
         # x = int(position[0] * self.screen_width)
