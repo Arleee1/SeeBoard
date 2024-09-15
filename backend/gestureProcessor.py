@@ -121,9 +121,9 @@ class GestureProcessor:
         # velocity = velocity * (dist)
 
         if velocity_magnitude > 1:
-            velocity = velocity / math.sqrt(velocity_magnitude)
+            velocity = velocity / (velocity_magnitude ** (1/3))
 
-        max_velocity = 10
+        max_velocity = 15
         if velocity_magnitude > max_velocity:
             velocity = velocity_unit * max_velocity
 
