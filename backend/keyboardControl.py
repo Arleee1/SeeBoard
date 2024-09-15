@@ -48,7 +48,7 @@ class keyboardControl:
             keyboard.send('left')
         elif s == 'Right':
             keyboard.send('right')
-        elif s == 'Flip':
+        elif s == 'View':
             pass
         else:
             keyboard.write(s)
