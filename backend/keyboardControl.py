@@ -5,8 +5,8 @@ import openai
 class keyboardControl:
     def __init__(self):
         self.cache = list()
-        with open("../apikey.txt", "r") as f:
-            openai.api_key = f.read()
+        # with open("../apikey.txt", "r") as f:
+        #     openai.api_key = f.read()
         self.messages = list()
         self.messages.append({"role": "system", "content": "You're an autocompleter. All future messages will provide "
                                                            "an input string. Output 5 possible words that the user "
