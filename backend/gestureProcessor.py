@@ -126,18 +126,20 @@ class GestureProcessor:
         return (res, dist)
 
     def handle_keyboard_movement(self, position):
-        x = (position[0] - left_bound_x) / (right_bound_x - left_bound_x) * self.screen_width
-        y = (position[1] - top_bound_y) / (bottom_bound_y - top_bound_y) * self.screen_height
+        # print(position, end="")
+        x = (position[0] - left_bound_x) / (right_bound_x - left_bound_x)
+        y = (position[1] - top_bound_y) / (bottom_bound_y - top_bound_y)
 
         # print(f"norm: {x, y}", end="")
-        self.last_mouse_pos = x, y
+        self.last_mouse_pos = x * self.screen_width, y * self.screen_height
     
         # x = max(self.window_x + margin, min(x, self.window_x + self.screen_width) - margin)
         # y = max(self.window_y + margin, min(y + self.window_y, self.window_y + self.screen_height) - margin)
         # print(f", w: {self.qt_width}, l: {self.qt_left_x}, h: {self.qt_height}, t: {self.qt_top_y}", end="")
         x = x * self.qt_width + self.qt_left_x
         y = y * self.qt_height + self.qt_top_y
-        # print(f", x,y: {x, y}")
+        # print("2: ", x, y)
+        # print(f", xl,y: {x, y}")
 
         margin = 15
         if x < self.qt_left_x + margin:
