@@ -1,3 +1,4 @@
+import ctypes
 import sys
 import os
 from queue import Queue
@@ -8,14 +9,20 @@ from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import QTimer
 import threading
 
+from backend.keyboardControl import keyboardControl
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from cv.hands_reader import read_hands
 import constants
 
 from backend.gestureProcessor import GestureProcessor
 
+GWL_EXSTYLE = -20
+WS_EX_NOACTIVATE = 0x08000000
+WS_EX_TOPMOST = 0x00000008
+
 hands_queue = Queue()
-scale_factor = 1.4
+scale_factor = 1.0
 class TransparentKeyboard(QWidget):
     def __init__(self):
         super().__init__()
@@ -28,6 +35,7 @@ class TransparentKeyboard(QWidget):
         # Make the window background transparent and always stay on top
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)  # Add WindowStaysOnTopHint
+        self.set_no_activate()
 
         # Set up the layout for the keyboard buttons with reduced spacing
         self.layout = QGridLayout()
@@ -50,6 +58,25 @@ class TransparentKeyboard(QWidget):
         self.timer.timeout.connect(self.on_timeout)
         self.timer.start(int(1000*(1./constants.FRAME_RATE)) - 5)  # Call every 100 milliseconds
         self.processor = GestureProcessor(pyqt_gui=self)
+
+    def set_no_activate(self):
+        # Get window handle (HWND)
+        hWnd = self.winId()
+
+        if not isinstance(hWnd, int):
+            hWnd = int(hWnd)
+
+        # Load user32.dll
+        user32 = ctypes.windll.user32
+
+        # Get current extended style
+        exStyle = user32.GetWindowLongPtrW(hWnd, GWL_EXSTYLE)
+
+        # Add WS_EX_NOACTIVATE and WS_EX_TOPMOST flags
+        newExStyle = exStyle | WS_EX_NOACTIVATE | WS_EX_TOPMOST
+
+        # Apply new extended window style
+        user32.SetWindowLongPtrW(hWnd, GWL_EXSTYLE, newExStyle)
 
     def on_timeout(self):
         if not hands_queue.empty():
@@ -173,6 +200,8 @@ class TransparentKeyboard(QWidget):
         button = self.sender()  # Get the clicked button
         key_value = button.text()  # Get the key's text
         print(f"Key pressed: {key_value}")  # Print the key (You can customize this)
+        controller = keyboardControl()
+        controller.keyboardInput(key_value)
 
 
 # Main application code

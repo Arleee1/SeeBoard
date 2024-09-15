@@ -12,14 +12,20 @@ class GestureProcessor:
         self.screen_width, self.screen_height = pyautogui.size()
         self.window_x, self.window_y = 0, 0
         self.hasClosedFor = 0
-        self.hasChangedMode = False
-        self.modeCooldown = 0
+        self.tilt_ct = 0
+        self.has_changed_mode = True
 
     def process_gesture(self, hand):
         self.handle_movement((hand['dampened_x'], hand['dampened_y']))
 
-        if self.modeCooldown > 0:
-            self.modeCooldown -= 1
+        is_tilted = hand["angle"] > 135 or hand["angle"] < -135
+
+        if is_tilted and not self.has_changed_mode:
+            self.tilt_ct += 1
+
+        if not is_tilted:
+            self.tilt_ct = 0
+            self.has_changed_mode = False
 
         if not hand['is_open'] and self.hasClosedFor == 5:
             self.hasClosedFor += 1
@@ -29,14 +35,10 @@ class GestureProcessor:
                 self.hasClosedFor = 0
             else:
                 self.hasClosedFor += 1
-        
-        if hand['angle'] > 120 and not self.hasChangedMode:
+
+        if self.tilt_ct == 5 and not self.has_changed_mode:
             self.swap_mode()
-            self.modeCooldown = 20
-            self.hasChangedMode = True
-        else:
-            if hand['angle'] < 120:
-                self.hasChangedMode = False
+            self.has_changed_mode = True
 
     def handle_movement(self, position):
         x = int(position[0] * self.screen_width)

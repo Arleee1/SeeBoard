@@ -3,3 +3,5 @@ pyautogui
 opencv-python
 mediapipe
 mouse
+openai
+keyboard
