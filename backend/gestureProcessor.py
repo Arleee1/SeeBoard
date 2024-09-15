@@ -19,6 +19,8 @@ class GestureProcessor:
         self.tilt_ct = 0
         self.has_changed_mode = True
         self.lastNonKeyboardClick = (0, 0)
+        self.isMousePressed = False
+        self.has_clicked = True
 
     def process_gesture(self, hand):
         self.handle_movement((hand['dampened_x'], hand['dampened_y']))
@@ -32,8 +34,16 @@ class GestureProcessor:
             self.tilt_ct = 0
             self.has_changed_mode = False
 
-        if not hand['is_open'] and self.hasClosedFor == 5:
+        is_closed = not hand['is_open']
+
+        if is_closed and not self.has_clicked:
             self.hasClosedFor += 1
+
+        if not is_closed:
+            self.hasClosedFor = 0
+            self.has_clicked = False
+
+        if self.hasClosedFor == 5 and not self.has_clicked:
             self.mouse_click()
             if self.mode.mode != "keyboard":
                 self.lastNonKeyboardClick = (hand['dampened_x'], hand['dampened_y'])
@@ -41,6 +51,9 @@ class GestureProcessor:
         else:
             if hand['is_open']:
                 self.hasClosedFor = 0
+                if self.isMousePressed:
+                    mouse.release('left')
+                    self.isMousePressed = False
             else:
                 self.hasClosedFor += 1
 
@@ -48,11 +61,14 @@ class GestureProcessor:
             self.swap_mode()
             self.has_changed_mode = True
 
+    def reset_hand_close(self):
+        self.hasClosedFor = 0
+        self.has_clicked = True
+
     def handle_movement(self, position):
-        # x = int(position[0] * self.screen_width)
-        # y = int(position[1] * self.screen_height)
         x = (position[0] - left_bound_x) / (right_bound_x - left_bound_x) * self.screen_width
         y = (position[1] - top_bound_y) / (bottom_bound_y - top_bound_y) * self.screen_height
+
         margin = 10
         if self.mode.get_mode() == "keyboard" and self.pyqt_gui:
             x = max(self.window_x + margin, min(x, self.window_x + self.screen_width) - margin)
@@ -66,10 +82,12 @@ class GestureProcessor:
         elif self.mode.get_mode() == "keyboard":
             mouse.click('left')
         else:
-            pass
+            mouse.press('left')
+            self.isMousePressed = True
 
     def swap_mode(self):
         cur_mode = self.mode.swap_mode()
+        self.reset_hand_close()
         if cur_mode == "keyboard" and self.pyqt_gui:
             self.updateGeometry()
         else:
