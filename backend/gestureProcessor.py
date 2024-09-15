@@ -49,10 +49,10 @@ class GestureProcessor:
         # y = int(position[1] * self.screen_height)
         x = (position[0] - left_bound_x) / (right_bound_x - left_bound_x) * self.screen_width
         y = (position[1] - top_bound_y) / (bottom_bound_y - top_bound_y) * self.screen_height
-        
+        margin = 10
         if self.mode.get_mode() == "keyboard" and self.pyqt_gui:
-            x = max(self.window_x, min(x, self.window_x + self.screen_width))
-            y = max(self.window_y, min(y + self.window_y, self.window_y + self.screen_height))
+            x = max(self.window_x + margin, min(x, self.window_x + self.screen_width) - margin)
+            y = max(self.window_y + margin, min(y + self.window_y, self.window_y + self.screen_height) - margin)
         
         mouse.move(x, y)
 
