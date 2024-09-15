@@ -1,6 +1,6 @@
 class Mode:
     def __init__(self):
-        self.mode = "navigation"
+        self.mode = "keyboard"
 
     def change_mode(self, new_mode):
         self.mode = new_mode
