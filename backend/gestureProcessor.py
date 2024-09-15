@@ -42,7 +42,6 @@ class GestureProcessor:
             self.has_clicked = False
 
         if self.hasClosedFor == 5 and not self.has_clicked:
-            self.hasClosedFor += 1
             self.mouse_click()
         else:
             if hand['is_open']:
@@ -59,6 +58,7 @@ class GestureProcessor:
 
     def reset_hand_close(self):
         self.hasClosedFor = 0
+        self.has_clicked = True
 
     def handle_movement(self, position):
         x = (position[0] - left_bound_x) / (right_bound_x - left_bound_x) * self.screen_width
