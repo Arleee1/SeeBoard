@@ -16,6 +16,7 @@ from cv.hands_reader import read_hands
 import constants
 
 from backend.gestureProcessor import GestureProcessor
+from ui.navballGUI import NavballWidget
 
 GWL_EXSTYLE = -20
 WS_EX_NOACTIVATE = 0x08000000
@@ -64,6 +65,13 @@ class TransparentKeyboard(QWidget):
         self.timer.timeout.connect(self.on_timeout)
         self.timer.start(int(1000*(1./constants.FRAME_RATE)) - 5)  # Call every 100 milliseconds
         self.processor = GestureProcessor(pyqt_gui=self)
+        self.velocity = self.processor.velocity
+        self.last_mouse_pos = self.processor.last_mouse_pos
+        self.mouse_home_x = self.processor.mouse_home_x
+        self.mouse_home_y = self.processor.mouse_home_y
+        self.navball = NavballWidget(self.velocity, self.last_mouse_pos, (self.mouse_home_x, self.mouse_home_y), parent=self)
+        self.navball.setWindowTitle("Navball")
+        self.navball.setGeometry(100, 100, 400, 400)  # Set initial position and size
         self.mode = self.processor.mode.mode
 
     def set_no_activate(self):
@@ -94,8 +102,10 @@ class TransparentKeyboard(QWidget):
                 self.processor.process_gesture(left_hand)
         if self.processor.mode.mode != 'keyboard':
             self.hide()
+            self.navball.show()
         else:
             self.show()
+            self.navball.hide()
 
 
     def button_style(self):
@@ -265,7 +275,6 @@ class TransparentKeyboard(QWidget):
             widget = item.widget()
             if widget is not None:
                 widget.deleteLater()
-
 
 app = QApplication(sys.argv)
 keyboard = TransparentKeyboard()

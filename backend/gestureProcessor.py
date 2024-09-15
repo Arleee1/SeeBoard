@@ -26,6 +26,9 @@ class GestureProcessor:
         self.mouse_home_y = 0.5
         self.last_mouse_pos = (0.5, 0.5)
 
+        self.velocity = [0, 0]
+
+
     def process_gesture(self, hand):
         self.handle_movement((hand['dampened_x'], hand['dampened_y']))
 
@@ -96,6 +99,8 @@ class GestureProcessor:
                 velocity = (0.1*(dist-40)) * controller_coords_unit_vec
 
             print(f"vel: {velocity}, curr: {x, y}, home: {self.mouse_home_x, self.mouse_home_y}")
+            self.velocity = velocity
+            self.curr_pos = [x, y]
 
             pass
 
