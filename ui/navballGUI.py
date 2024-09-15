@@ -16,6 +16,7 @@ class NavballWidget(QWidget):
     def initUI(self):
         self.setMinimumSize(400, 400)
         self.setWindowTitle('Navball')
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)  # Add WindowStaysOnTopHint
 
     def paintEvent(self, event):
         painter = QPainter(self)

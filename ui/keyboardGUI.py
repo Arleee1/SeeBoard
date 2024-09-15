@@ -65,13 +65,6 @@ class TransparentKeyboard(QWidget):
         self.timer.timeout.connect(self.on_timeout)
         self.timer.start(int(1000*(1./constants.FRAME_RATE)) - 5)  # Call every 100 milliseconds
         self.processor = GestureProcessor(pyqt_gui=self)
-        self.velocity = self.processor.velocity
-        self.last_mouse_pos = self.processor.last_mouse_pos
-        self.mouse_home_x = self.processor.mouse_home_x
-        self.mouse_home_y = self.processor.mouse_home_y
-        self.navball = NavballWidget(self.velocity, self.last_mouse_pos, (self.mouse_home_x, self.mouse_home_y), parent=self)
-        self.navball.setWindowTitle("Navball")
-        self.navball.setGeometry(100, 100, 400, 400)  # Set initial position and size
         self.mode = self.processor.mode.mode
 
     def set_no_activate(self):
@@ -94,18 +87,33 @@ class TransparentKeyboard(QWidget):
         user32.SetWindowLongPtrW(hWnd, GWL_EXSTYLE, newExStyle)
 
     def on_timeout(self):
+        navball = None
         if not hands_queue.empty():
             left_hand, right_hand = hands_queue.get()
             if right_hand['exists']:
-                self.processor.process_gesture(right_hand)
+                navball_data = self.processor.process_gesture(right_hand)
+                velocity = navball_data[0]
+                current_position = navball_data[1]
+                home_position = navball_data[2]
+                navball = NavballWidget(velocity, current_position, (home_position[0], home_position[1]))
+                navball.setWindowTitle("Navball")
+                navball.setGeometry(100, 100, 400, 400)  # Set initial position and size
             elif left_hand['exists']:
-                self.processor.process_gesture(left_hand)
+                navball_data = self.processor.process_gesture(left_hand)
+                velocity = navball_data[0]
+                current_position = navball_data[1]
+                home_position = navball_data[2]
+                navball = NavballWidget(velocity, current_position, (home_position[0], home_position[1]))
+                navball.setWindowTitle("Navball")
+                navball.setGeometry(100, 100, 400, 400)  # Set initial position and size
         if self.processor.mode.mode != 'keyboard':
+            if navball:
+                navball.show()
             self.hide()
-            self.navball.show()
         else:
+            if navball:
+                navball.hide()
             self.show()
-            self.navball.hide()
 
 
     def button_style(self):

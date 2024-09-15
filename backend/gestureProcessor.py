@@ -90,6 +90,7 @@ class GestureProcessor:
             controller_coords = numpy.array([x, y])
 
             diff = controller_coords - mouse_home
+            print(f"diff: {diff}")
             dist = norm(diff)
             controller_coords_unit_vec = diff / dist
 
