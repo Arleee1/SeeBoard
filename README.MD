@@ -12,6 +12,9 @@ This project was submitted to VTHacks 12, and won first place in the category "[
 
 ## Authors
 Ethan Ermovick
+
 Aidan Liu
+
 Ethan Coon
+
 Brandon Kantorski
